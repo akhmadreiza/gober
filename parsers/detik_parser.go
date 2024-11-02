@@ -3,6 +3,7 @@ package parsers
 import (
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/akhmadreiza/gober/models"
@@ -31,23 +32,68 @@ func (detik DetikScraper) Search(keyword string) ([]models.Article, error) {
 }
 
 func (detik DetikScraper) Popular() ([]models.Article, error) {
-	popularUrl := "https://www.detik.com/terpopuler/news"
-	resp, err := http.Get(popularUrl)
+	popUrls := []string{
+		"https://www.detik.com/terpopuler/news",
+		"https://www.detik.com/terpopuler/finance",
+		"https://www.detik.com/terpopuler/hot",
+		"https://www.detik.com/terpopuler/inet",
+		"https://www.detik.com/terpopuler/sport",
+		"https://www.detik.com/terpopuler/oto",
+		"https://www.detik.com/terpopuler/travel",
+		"https://www.detik.com/terpopuler/sepakbola",
+		"https://www.detik.com/terpopuler/food",
+		"https://www.detik.com/terpopuler/health",
+		"https://www.detik.com/terpopuler/wolipop",
+		"https://www.detik.com/terpopuler/edu",
+	}
+
+	// Create a channel to receive Articles
+	ch := make(chan []models.Article)
+
+	// Use a WaitGroup to ensure all goroutines complete
+	var wg sync.WaitGroup
+
+	for _, url := range popUrls {
+		wg.Add(1)
+		go fetchListArticlesRoutine(url, ch, &wg)
+	}
+
+	// Close the channel once all goroutines are done
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	var listArticles []models.Article
+	for result := range ch {
+		listArticles = append(listArticles, result...)
+	}
+	return listArticles, nil
+}
+
+func fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *sync.WaitGroup) {
+	//call waitGroup.Done at the end of method
+	defer waitGroup.Done()
+
+	resp, err := http.Get(url)
 	if err != nil {
-		return []models.Article{}, err
+		ch <- []models.Article{}
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return []models.Article{}, fmt.Errorf("error: status code %d", resp.StatusCode)
+		ch <- []models.Article{}
+		return
 	}
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		return []models.Article{}, err
+		ch <- []models.Article{}
+		return
 	}
 
-	return fetchListArticles(doc), nil
+	ch <- fetchListArticles(doc)
 }
 
 func fetchListArticles(doc *goquery.Document) []models.Article {

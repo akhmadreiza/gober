@@ -14,15 +14,15 @@ func main() {
 		return
 	}
 
-	articles, err := scraper.Search("prabowo")
-	if err != nil {
-		fmt.Println("Error scrap URL:", err)
-		return
-	}
+	// articles, err := scraper.Search("prabowo")
+	// if err != nil {
+	// 	fmt.Println("Error scrap URL:", err)
+	// 	return
+	// }
 
-	for _, article := range articles {
-		fmt.Printf("Scraped Article: URL=%s, Title=%s\n", article.URL, article.Title)
-	}
+	// for _, article := range articles {
+	// 	fmt.Printf("Scraped Article: URL=%s, Title=%s\n", article.URL, article.Title)
+	// }
 
 	popArticles, err := scraper.Popular()
 	if err != nil {
