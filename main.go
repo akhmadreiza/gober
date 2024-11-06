@@ -27,7 +27,7 @@ func initRouter() {
 	router := gin.Default()
 	router.GET("/articles/popular", getPopularArticle)
 	router.GET("/articles", searchArticle)
-	router.Run("localhost:8080")
+	router.Run(":8080")
 }
 
 func searchArticle(ginContext *gin.Context) {
