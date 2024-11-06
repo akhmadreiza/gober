@@ -6,4 +6,5 @@ type Article struct {
 	ShortDesc string `json:"description"`
 	Author    string `json:"author"`
 	Date      string `json:"timestamp"`
+	SourceUrl string `json:"source_url"`
 }

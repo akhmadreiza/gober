@@ -27,7 +27,49 @@ func initRouter() {
 	router := gin.Default()
 	router.GET("/articles/popular", getPopularArticle)
 	router.GET("/articles", searchArticle)
+	router.GET("/article", articleDetail)
 	router.Run(":8080")
+}
+
+func articleDetail(ginContext *gin.Context) {
+	website := ginContext.DefaultQuery("source", "detik")
+	detailUrl := ginContext.Query("detailUrl")
+
+	log.Println("source:", website, "detail url:", detailUrl)
+
+	if detailUrl == "" {
+		ginContext.IndentedJSON(http.StatusBadRequest, gin.H{
+			"desc":   "param detailUrl is not exists or is empty",
+			"status": "Failed",
+		})
+		return
+	}
+
+	scraper, err := getScraper(website)
+	if err != nil {
+		fmt.Println("Error when getting scraper:", err)
+		ginContext.IndentedJSON(http.StatusUnprocessableEntity, gin.H{
+			"desc":   err.Error(),
+			"status": "Failed",
+		})
+		return
+	}
+
+	article, err := scraper.Detail(detailUrl)
+	if err != nil {
+		fmt.Println("Error scrap URL:", err)
+		return
+	}
+
+	var listArticles []models.Article
+	listArticles = append(listArticles, article)
+	resp := GoberResp{
+		Status:   "Success",
+		Count:    1,
+		Articles: listArticles,
+	}
+
+	ginContext.IndentedJSON(http.StatusOK, resp)
 }
 
 func searchArticle(ginContext *gin.Context) {
@@ -54,7 +96,7 @@ func searchArticle(ginContext *gin.Context) {
 		return
 	}
 
-	articles, err := scraper.Search(searchKey)
+	articles, err := scraper.Search(searchKey, ginContext)
 	if err != nil {
 		fmt.Println("Error scrap URL:", err)
 		return

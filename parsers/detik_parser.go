@@ -8,11 +8,37 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/akhmadreiza/gober/models"
+	"github.com/gin-gonic/gin"
 )
 
 type DetikScraper struct{}
 
-func (detik DetikScraper) Search(keyword string) ([]models.Article, error) {
+func (detik DetikScraper) Detail(url string) (models.Article, error) {
+	log.Println("accessing", url)
+	resp, err := http.Get(url)
+	if err != nil {
+		return models.Article{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return models.Article{}, fmt.Errorf("error: status code %d", resp.StatusCode)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	if err != nil {
+		return models.Article{}, err
+	}
+
+	title := doc.Find("h1.detail__title").Text()
+
+	article := models.Article{}
+	article.Title = title
+
+	return article, nil
+}
+
+func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]models.Article, error) {
 	searchUrl := fmt.Sprintf("https://www.detik.com/search/searchall?query=%v&page=1&result_type=latest", keyword)
 	log.Println("accessing", searchUrl)
 	resp, err := http.Get(searchUrl)

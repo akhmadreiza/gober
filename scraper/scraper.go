@@ -1,8 +1,12 @@
 package scraper
 
-import "github.com/akhmadreiza/gober/models"
+import (
+	"github.com/akhmadreiza/gober/models"
+	"github.com/gin-gonic/gin"
+)
 
 type NewsScraper interface {
-	Search(keyword string) ([]models.Article, error)
+	Search(keyword string, ginContext *gin.Context) ([]models.Article, error)
 	Popular() ([]models.Article, error)
+	Detail(url string) (models.Article, error)
 }
