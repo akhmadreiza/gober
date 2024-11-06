@@ -1,8 +1,9 @@
 package models
 
 type Article struct {
-	URL       string
-	Title     string
-	ShortDesc string
-	Date      string
+	URL       string `json:"url"`
+	Title     string `json:"title"`
+	ShortDesc string `json:"description"`
+	Author    string `json:"author"`
+	Date      string `json:"timestamp"`
 }

@@ -2,6 +2,7 @@ package parsers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"sync"
 
@@ -13,6 +14,7 @@ type DetikScraper struct{}
 
 func (detik DetikScraper) Search(keyword string) ([]models.Article, error) {
 	searchUrl := fmt.Sprintf("https://www.detik.com/search/searchall?query=%v&page=1&result_type=latest", keyword)
+	log.Println("accessing", searchUrl)
 	resp, err := http.Get(searchUrl)
 	if err != nil {
 		return []models.Article{}, err
