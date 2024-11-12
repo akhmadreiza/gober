@@ -8,4 +8,5 @@ type Article struct {
 	Date      string `json:"timestamp"`
 	SourceUrl string `json:"source_url"`
 	Content   string `json:"content"`
+	ImgUrl    string `json:"img_url"`
 }

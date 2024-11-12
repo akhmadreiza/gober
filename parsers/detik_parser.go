@@ -46,12 +46,6 @@ func (detik DetikScraper) Detail(url string) (models.Article, error) {
 		if s.Is("p") || s.Is("h3") {
 			content = content + s.Text() + "\n"
 		}
-		// if s.Find("p") != nil {
-		// 	content = content + s.Find("p").Text() + "\\n"
-		// }
-		// if s.Find("h3") != nil {
-		// 	content = content + s.Find("h3").Text() + "\\n"
-		// }
 	})
 	article.Content = content
 
@@ -149,6 +143,7 @@ func fetchListArticles(doc *goquery.Document, c *gin.Context) []models.Article {
 	doc.Find("article.list-content__item").Each(func(i int, s *goquery.Selection) {
 		article := models.Article{}
 		media := s.Find("h3.media__title")
+		img, imgExists := s.Find("div.media__image").Find("img").Attr("src")
 
 		var resultUrl string
 		articleUrl, attrExists := media.Find("a").Attr("href")
@@ -165,6 +160,14 @@ func fetchListArticles(doc *goquery.Document, c *gin.Context) []models.Article {
 		article.URL = scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(resultUrl)
 		article.SourceUrl = resultUrl
 		article.Title = articleTitle
+		if imgExists {
+			article.ImgUrl = img
+		}
+
+		parsedUrl, err := url.Parse(resultUrl)
+		if err == nil {
+			article.ShortDesc = parsedUrl.Host
+		}
 
 		listArticles = append(listArticles, article)
 	})
