@@ -7,6 +7,6 @@ import (
 
 type NewsScraper interface {
 	Search(keyword string, ginContext *gin.Context) ([]models.Article, error)
-	Popular() ([]models.Article, error)
+	Popular(ginContext *gin.Context) ([]models.Article, error)
 	Detail(url string) (models.Article, error)
 }

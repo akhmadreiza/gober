@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
@@ -31,9 +32,28 @@ func (detik DetikScraper) Detail(url string) (models.Article, error) {
 	}
 
 	title := doc.Find("h1.detail__title").Text()
+	author := doc.Find("div.detail__author").Text()
+	articleDate := doc.Find("div.detail__date").Text()
 
 	article := models.Article{}
+	article.URL = url
 	article.Title = title
+	article.Author = author
+	article.Date = articleDate
+
+	var content string
+	doc.Find("div.detail__body-text.itp_bodycontent").Children().Each(func(i int, s *goquery.Selection) {
+		if s.Is("p") || s.Is("h3") {
+			content = content + s.Text() + "\n"
+		}
+		// if s.Find("p") != nil {
+		// 	content = content + s.Find("p").Text() + "\\n"
+		// }
+		// if s.Find("h3") != nil {
+		// 	content = content + s.Find("h3").Text() + "\\n"
+		// }
+	})
+	article.Content = content
 
 	return article, nil
 }
@@ -56,10 +76,10 @@ func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]mod
 		return []models.Article{}, err
 	}
 
-	return fetchListArticles(doc), nil
+	return fetchListArticles(doc, ginContext), nil
 }
 
-func (detik DetikScraper) Popular() ([]models.Article, error) {
+func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, error) {
 	popUrls := []string{
 		"https://www.detik.com/terpopuler/news",
 		"https://www.detik.com/terpopuler/finance",
@@ -83,7 +103,7 @@ func (detik DetikScraper) Popular() ([]models.Article, error) {
 
 	for _, url := range popUrls {
 		wg.Add(1)
-		go fetchListArticlesRoutine(url, ch, &wg)
+		go fetchListArticlesRoutine(url, ch, &wg, ginContext)
 	}
 
 	// Close the channel once all goroutines are done
@@ -99,7 +119,7 @@ func (detik DetikScraper) Popular() ([]models.Article, error) {
 	return listArticles, nil
 }
 
-func fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *sync.WaitGroup) {
+func fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *sync.WaitGroup, ginContext *gin.Context) {
 	//call waitGroup.Done at the end of method
 	defer waitGroup.Done()
 
@@ -121,10 +141,10 @@ func fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *s
 		return
 	}
 
-	ch <- fetchListArticles(doc)
+	ch <- fetchListArticles(doc, ginContext)
 }
 
-func fetchListArticles(doc *goquery.Document) []models.Article {
+func fetchListArticles(doc *goquery.Document, c *gin.Context) []models.Article {
 	var listArticles []models.Article
 	doc.Find("article.list-content__item").Each(func(i int, s *goquery.Selection) {
 		article := models.Article{}
@@ -138,7 +158,12 @@ func fetchListArticles(doc *goquery.Document) []models.Article {
 
 		articleTitle := media.Find("a").Text()
 
-		article.URL = resultUrl
+		scheme := "http"
+		if c.Request.TLS != nil {
+			scheme = "https"
+		}
+		article.URL = scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(resultUrl)
+		article.SourceUrl = resultUrl
 		article.Title = articleTitle
 
 		listArticles = append(listArticles, article)

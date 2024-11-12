@@ -125,7 +125,7 @@ func getPopularArticle(ginContext *gin.Context) {
 		return
 	}
 
-	popArticles, err := scraper.Popular()
+	popArticles, err := scraper.Popular(ginContext)
 	if err != nil {
 		fmt.Println("Error getting popular news:", err)
 		return
