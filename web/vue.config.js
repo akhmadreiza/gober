@@ -10,9 +10,10 @@ module.exports = {
       '/articles/popular': {
         target: 'http://localhost:8080', // Go backend
         changeOrigin: true,
-        // pathRewrite: {
-        //   '^/articles/popular': '/articles/popular', // Optional, you can adjust the path if needed
-        // },
+      },
+      '/article': {
+        target: 'http://localhost:8080', // Go backend
+        changeOrigin: true,
       },
     },
   },

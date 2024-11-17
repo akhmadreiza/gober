@@ -1,5 +1,6 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../views/LandingPage.vue';
+import ArticleDetail from '../views/ArticleDetail.vue'
 
 const routes = [
   {
@@ -7,12 +8,17 @@ const routes = [
     name: 'home',
     component: LandingPage
   },
+  {
+    path: '/detail',
+    name: 'ArticleDetail', 
+    component: ArticleDetail
+  },
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   base: process.env.BASE_URL,
-  routes
+  routes,
 })
 
 export default router

@@ -34,20 +34,17 @@ func (detik DetikScraper) Detail(url string) (models.Article, error) {
 	title := doc.Find("h1.detail__title").Text()
 	author := doc.Find("div.detail__author").Text()
 	articleDate := doc.Find("div.detail__date").Text()
+	imageUrl, _ := doc.Find("div.detail__media").Find("img").Attr("src")
 
 	article := models.Article{}
 	article.URL = url
 	article.Title = title
 	article.Author = author
 	article.Date = articleDate
+	article.ImgUrl = imageUrl
 
-	var content string
-	doc.Find("div.detail__body-text.itp_bodycontent").Children().Each(func(i int, s *goquery.Selection) {
-		if s.Is("p") || s.Is("h3") {
-			content = content + s.Text() + "\n"
-		}
-	})
-	article.Content = content
+	html, _ := doc.Find("div.detail__body-text.itp_bodycontent").Html()
+	article.Content = html
 
 	return article, nil
 }
