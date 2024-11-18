@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"sync"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/akhmadreiza/gober/models"
+	"github.com/akhmadreiza/gober/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -67,7 +67,7 @@ func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]mod
 		return []models.Article{}, err
 	}
 
-	return fetchListArticles(doc, ginContext), nil
+	return fetchArticlesDetik(doc, ginContext), nil
 }
 
 func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, error) {
@@ -86,56 +86,10 @@ func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, er
 		"https://www.detik.com/terpopuler/edu",
 	}
 
-	// Create a channel to receive Articles
-	ch := make(chan []models.Article)
-
-	// Use a WaitGroup to ensure all goroutines complete
-	var wg sync.WaitGroup
-
-	for _, url := range popUrls {
-		wg.Add(1)
-		go fetchListArticlesRoutine(url, ch, &wg, ginContext)
-	}
-
-	// Close the channel once all goroutines are done
-	go func() {
-		wg.Wait()
-		close(ch)
-	}()
-
-	var listArticles []models.Article
-	for result := range ch {
-		listArticles = append(listArticles, result...)
-	}
-	return listArticles, nil
+	return utils.FetchListArticles(fetchArticlesDetik, popUrls, ginContext), nil
 }
 
-func fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *sync.WaitGroup, ginContext *gin.Context) {
-	//call waitGroup.Done at the end of method
-	defer waitGroup.Done()
-
-	resp, err := http.Get(url)
-	if err != nil {
-		ch <- []models.Article{}
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		ch <- []models.Article{}
-		return
-	}
-
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		ch <- []models.Article{}
-		return
-	}
-
-	ch <- fetchListArticles(doc, ginContext)
-}
-
-func fetchListArticles(doc *goquery.Document, c *gin.Context) []models.Article {
+func fetchArticlesDetik(doc *goquery.Document, c *gin.Context) []models.Article {
 	var listArticles []models.Article
 	doc.Find("article.list-content__item").Each(func(i int, s *goquery.Selection) {
 		article := models.Article{}

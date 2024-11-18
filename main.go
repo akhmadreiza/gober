@@ -144,6 +144,8 @@ func getPopularArticle(ginContext *gin.Context) {
 func getScraper(website string) (scraper.NewsScraper, error) {
 	if website == "detik" {
 		return parsers.DetikScraper{}, nil
+	} else if website == "kompas" {
+		return parsers.KompasScraper{}, nil
 	}
 	return nil, fmt.Errorf("scrape %v not supported", website)
 }
