@@ -25,12 +25,16 @@
     },
     async created() {
       const detailUrl = this.$route.query.detailUrl;
+      const sourceWebsite = this.$route.query.source;
       if (!detailUrl) {
         console.error('Detail URL is missing');
         return;
       }
+      if (!sourceWebsite) {
+        console.error('Source is missing')
+      }
       try {
-        const response = await axios.get(`/article?source=detik&detailUrl=${detailUrl}`);
+        const response = await axios.get(`/article?source=${sourceWebsite}&detailUrl=${detailUrl}`);
         if (response.data.status === 'Success' && response.data.articles.length) {
           this.article = response.data.articles[0];
         } else {

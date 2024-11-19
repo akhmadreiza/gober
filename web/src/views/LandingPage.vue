@@ -1,23 +1,30 @@
 <template>
   <div class="landing-page">
     <h1 class="page-title">Popular Articles</h1>
-    <div class="articles-container" v-if="articles.length">
-      <div class="article-card" v-for="article in articles" :key="article.source_url">
-        <div class="article-image-container">
-          <!-- Add the image dynamically from img_url -->
-          <img v-if="article.img_url" :src="article.img_url" alt="Article Image" class="article-image" />
-        </div>
-        <h2 class="article-title">{{ article.title }}</h2>
-        <p class="article-description">{{ article.description || 'No description available.' }}</p>
-        <div class="article-links">
-          <!-- Link to detail page -->
-          <a :href="'/detail?detailUrl=' + encodeURIComponent(article.source_url)" class="read-link">Read</a>
-          <!-- Link to external source -->
-          <a :href="article.source_url" target="_blank" class="read-more-link">Read from Source</a>
+    <div class="website-section" v-for="(website, index) in websites" :key="website.name">
+      <h2 class="website-title">{{ website.displayName }}</h2>
+      <div class="articles-container">
+        <div
+          class="article-card"
+          v-for="(article) in website.articles.slice(0, website.visibleCount)"
+          :key="article.source_url"
+        >
+          <div class="article-image-container">
+            <img v-if="article.img_url" :src="article.img_url" alt="Article Image" class="article-image" />
+          </div>
+          <h2 class="article-title">{{ article.title }}</h2>
+          <p class="article-description">{{ article.description || 'No description available.' }}</p>
+          <div class="article-links">
+            <a :href="'/detail' + '?source=' + website.name + '&detailUrl=' + encodeURIComponent(article.source_url)" class="read-link">Read</a>
+            <a :href="article.source_url" target="_blank" class="read-more-link">Read from Source</a>
+          </div>
         </div>
       </div>
+      <button v-if="website.visibleCount < website.articles.length" @click="loadMore(index)" class="load-more-button">
+        See More from {{ website.displayName }}
+      </button>
     </div>
-    <p v-else class="loading-message">Loading articles...</p>
+    <p v-if="isLoading" class="loading-message">Loading articles...</p>
   </div>
 </template>
 
@@ -28,20 +35,38 @@ export default {
   name: "LandingPage",
   data() {
     return {
-      articles: [],
+      websites: [
+        { name: "detik", displayName: "Detik.com", articles: [], visibleCount: 6 },
+        { name: "kompas", displayName: "Kompas.com", articles: [], visibleCount: 6 },
+      ],
+      isLoading: true,
     };
   },
-  async created() {
-    try {
-      const response = await axios.get("/articles/popular?source=detik");
-      if (response.data.status === "Success" && Array.isArray(response.data.articles)) {
-        this.articles = response.data.articles;
-      } else {
-        console.error("Error: Articles are not available or status is not Success");
+  methods: {
+    async fetchArticles() {
+      try {
+        const requests = this.websites.map((site) =>
+          axios.get(`/articles/popular?source=${site.name}`).then((response) => {
+            if (response.data.status === "Success" && Array.isArray(response.data.articles)) {
+              site.articles = response.data.articles;
+            } else {
+              console.error(`Error fetching articles for ${site.name}`);
+            }
+          })
+        );
+        await Promise.all(requests);
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+      } finally {
+        this.isLoading = false;
       }
-    } catch (error) {
-      console.error("Error fetching popular articles:", error);
-    }
+    },
+    loadMore(index) {
+      this.websites[index].visibleCount = this.websites[index].articles.length;
+    },
+  },
+  async created() {
+    await this.fetchArticles();
   },
 };
 </script>
@@ -175,4 +200,27 @@ export default {
     font-size: 1.3rem;
   }
 }
+.website-title {
+  font-size: 2rem;
+  margin: 20px 0;
+  color: #2c3e50; /* Dark blue for website titles */
+}
+
+.load-more-button {
+  display: inline-block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
+  background-color: #3498db;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.load-more-button:hover {
+  background-color: #2980b9; /* Darker blue */
+}
+
 </style>

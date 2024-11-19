@@ -82,7 +82,6 @@ func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, er
 		"https://www.detik.com/terpopuler/sepakbola",
 		"https://www.detik.com/terpopuler/food",
 		"https://www.detik.com/terpopuler/health",
-		"https://www.detik.com/terpopuler/wolipop",
 		"https://www.detik.com/terpopuler/edu",
 	}
 
