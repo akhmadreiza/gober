@@ -55,7 +55,7 @@ func articleDetail(ginContext *gin.Context) {
 		return
 	}
 
-	article, err := scraper.Detail(detailUrl)
+	article, err := scraper.Detail(detailUrl, ginContext)
 	if err != nil {
 		fmt.Println("Error scrap URL:", err)
 		return

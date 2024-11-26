@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/akhmadreiza/gober/models"
@@ -27,7 +28,7 @@ func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 	return utils.FetchListArticles(fetchArticlesKompas, popUrls, c), nil
 }
 
-func (k KompasScraper) Detail(url string) (models.Article, error) {
+func (k KompasScraper) Detail(url string, c *gin.Context) (models.Article, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return models.Article{}, err
@@ -82,6 +83,13 @@ func fetchArticlesKompas(doc *goquery.Document, c *gin.Context) []models.Article
 		parsedUrl, err := url.Parse(resultUrl)
 		if err == nil {
 			article.ShortDesc = parsedUrl.Host
+
+			//extract date from kompas url
+			su := strings.Split(parsedUrl.Path, "/")
+			at := su[len(su)-2]
+			ah := at[0:2]
+			am := at[2:4]
+			article.Date = s.Find("div.articlePost-date").Text() + ", " + ah + ":" + am + " WIB"
 		}
 
 		img, imgExists := s.Find("div.articleItem-img").Find("img").Attr("src")

@@ -13,6 +13,7 @@
             <img v-if="article.img_url" :src="article.img_url" alt="Article Image" class="article-image" />
           </div>
           <h2 class="article-title">{{ article.title }}</h2>
+          <p class="article-date">{{ article.timestamp || '' }}</p>
           <p class="article-description">{{ article.description || 'No description available.' }}</p>
           <div class="article-links">
             <a :href="'/detail' + '?source=' + website.name + '&detailUrl=' + encodeURIComponent(article.source_url)" class="read-link">Read</a>
@@ -135,6 +136,13 @@ export default {
 
 .article-description {
   font-size: 1rem;
+  color: #555;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.article-date{
+  font-size: 0.8rem;
   color: #555;
   margin-bottom: 15px;
   text-align: left;

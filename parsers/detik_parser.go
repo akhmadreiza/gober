@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/akhmadreiza/gober/models"
@@ -14,9 +15,9 @@ import (
 
 type DetikScraper struct{}
 
-func (detik DetikScraper) Detail(url string) (models.Article, error) {
-	log.Println("accessing", url)
-	resp, err := http.Get(url)
+func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
+	log.Println("accessing", detailUrl)
+	resp, err := http.Get(detailUrl)
 	if err != nil {
 		return models.Article{}, err
 	}
@@ -37,14 +38,36 @@ func (detik DetikScraper) Detail(url string) (models.Article, error) {
 	imageUrl, _ := doc.Find("div.detail__media").Find("img").Attr("src")
 
 	article := models.Article{}
-	article.URL = url
+	article.URL = detailUrl
 	article.Title = title
 	article.Author = author
 	article.Date = articleDate
 	article.ImgUrl = imageUrl
 
 	html, _ := doc.Find("div.detail__body-text.itp_bodycontent").Html()
-	article.Content = html
+
+	//replace all href attribute value in "a" element to detail url
+	docWithin, err := goquery.NewDocumentFromReader(strings.NewReader(html))
+	if err != nil {
+		return models.Article{}, err
+	}
+	docWithin.Find("a").Each(func(i int, s *goquery.Selection) {
+		href := s.AttrOr("href", "")
+		if !strings.Contains(href, "tag") { //exclude tag link
+			scheme := "http"
+			if c.Request.TLS != nil {
+				scheme = "https"
+			}
+			du := scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(href)
+			s.SetAttr("href", du)
+		}
+	})
+
+	fHtml, err := docWithin.Html()
+	if err != nil {
+		article.Content = html
+	}
+	article.Content = fHtml
 
 	return article, nil
 }
@@ -118,6 +141,8 @@ func fetchArticlesDetik(doc *goquery.Document, c *gin.Context) []models.Article 
 		if err == nil {
 			article.ShortDesc = parsedUrl.Host
 		}
+
+		article.Date = s.Find("div.media__date").Find("span").AttrOr("title", "-")
 
 		listArticles = append(listArticles, article)
 	})
