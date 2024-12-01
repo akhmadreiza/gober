@@ -46,29 +46,7 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 	article.ImgUrl = imageUrl
 
 	html, _ := doc.Find("div.detail__body-text.itp_bodycontent").Html()
-
-	//replace all href attribute value in "a" element to detail url
-	docWithin, err := goquery.NewDocumentFromReader(strings.NewReader(html))
-	if err != nil {
-		return models.Article{}, err
-	}
-	docWithin.Find("a").Each(func(i int, s *goquery.Selection) {
-		href := s.AttrOr("href", "")
-		if !strings.Contains(href, "tag") { //exclude tag link
-			scheme := "http"
-			if c.Request.TLS != nil {
-				scheme = "https"
-			}
-			du := scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(href)
-			s.SetAttr("href", du)
-		}
-	})
-
-	fHtml, err := docWithin.Html()
-	if err != nil {
-		article.Content = html
-	}
-	article.Content = fHtml
+	article.Content = html
 
 	return article, nil
 }
