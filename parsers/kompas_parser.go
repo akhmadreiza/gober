@@ -12,7 +12,7 @@ import (
 )
 
 type KompasScraper struct {
-	Client HTTPClient
+	Client utils.HTTPClient
 	Utils  utils.ScrapeUtils
 }
 

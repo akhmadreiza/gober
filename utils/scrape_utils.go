@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
@@ -25,7 +26,7 @@ func (s ScrapeUtils) FetchListArticles(f func(doc *goquery.Document, c *gin.Cont
 
 	for _, url := range urls {
 		wg.Add(1)
-		go fetchListArticlesRoutine(url, ch, &wg, c, s.Client, f)
+		go s.fetchListArticlesRoutine(url, ch, &wg, c, f)
 	}
 
 	// Close the channel once all goroutines are done
@@ -41,23 +42,22 @@ func (s ScrapeUtils) FetchListArticles(f func(doc *goquery.Document, c *gin.Cont
 	return listArticles
 }
 
-func fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *sync.WaitGroup, ginContext *gin.Context, httpClient HTTPClient, f func(doc *goquery.Document, c *gin.Context) []models.Article) {
+func (s ScrapeUtils) fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *sync.WaitGroup, ginContext *gin.Context, f func(doc *goquery.Document, c *gin.Context) []models.Article) {
 	//call waitGroup.Done at the end of method
 	defer waitGroup.Done()
 
-	resp, err := httpClient.Client.Get(url)
+	resp, err := s.Client.Get(url)
 	if err != nil {
 		ch <- []models.Article{}
 		return
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
+	if resp.Status != 200 {
 		ch <- []models.Article{}
 		return
 	}
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(resp.Body))
 	if err != nil {
 		ch <- []models.Article{}
 		return

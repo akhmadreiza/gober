@@ -1,4 +1,4 @@
-package parsers
+package utils
 
 import (
 	"github.com/akhmadreiza/gober/models"

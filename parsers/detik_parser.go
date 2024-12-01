@@ -13,12 +13,11 @@ import (
 )
 
 type DetikScraper struct {
-	Client HTTPClient
+	Client utils.HTTPClient
 	Utils  utils.ScrapeUtils
 }
 
 func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
-	log.Println("accessing", detailUrl)
 	resp, err := detik.Client.Get(detailUrl)
 	if err != nil {
 		return models.Article{}, err

@@ -8,17 +8,17 @@ import (
 	"github.com/akhmadreiza/gober/models"
 )
 
-type HTTPClient struct {
+type RealHTTPClient struct {
 	Client *http.Client
 }
 
-func NewHTTPClient() *HTTPClient {
-	return &HTTPClient{
+func NewHTTPClient() *RealHTTPClient {
+	return &RealHTTPClient{
 		Client: &http.Client{},
 	}
 }
 
-func (h HTTPClient) Get(url string) (sr models.ScraperResponse, err error) {
+func (h RealHTTPClient) Get(url string) (sr models.ScraperResponse, err error) {
 	resp, err := h.Client.Get(url)
 	if err != nil {
 		return models.ScraperResponse{}, fmt.Errorf("failed to fetch URL: %w", err)
