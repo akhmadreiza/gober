@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"net/http"
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
@@ -9,7 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FetchListArticles(f func(doc *goquery.Document, c *gin.Context) []models.Article, urls []string, c *gin.Context) []models.Article {
+type ScrapeUtils struct {
+	Client HTTPClient
+}
+
+func NewScrapeUtils(client HTTPClient) ScrapeUtils {
+	return ScrapeUtils{client}
+}
+
+func (s ScrapeUtils) FetchListArticles(f func(doc *goquery.Document, c *gin.Context) []models.Article, urls []string, c *gin.Context) []models.Article {
 	// Create a channel to receive Articles
 	ch := make(chan []models.Article)
 
@@ -18,7 +25,7 @@ func FetchListArticles(f func(doc *goquery.Document, c *gin.Context) []models.Ar
 
 	for _, url := range urls {
 		wg.Add(1)
-		go fetchListArticlesRoutine(url, ch, &wg, c, f)
+		go fetchListArticlesRoutine(url, ch, &wg, c, s.Client, f)
 	}
 
 	// Close the channel once all goroutines are done
@@ -34,11 +41,11 @@ func FetchListArticles(f func(doc *goquery.Document, c *gin.Context) []models.Ar
 	return listArticles
 }
 
-func fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *sync.WaitGroup, ginContext *gin.Context, f func(doc *goquery.Document, c *gin.Context) []models.Article) {
+func fetchListArticlesRoutine(url string, ch chan []models.Article, waitGroup *sync.WaitGroup, ginContext *gin.Context, httpClient HTTPClient, f func(doc *goquery.Document, c *gin.Context) []models.Article) {
 	//call waitGroup.Done at the end of method
 	defer waitGroup.Done()
 
-	resp, err := http.Get(url)
+	resp, err := httpClient.Client.Get(url)
 	if err != nil {
 		ch <- []models.Article{}
 		return

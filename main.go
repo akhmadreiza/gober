@@ -8,6 +8,7 @@ import (
 	"github.com/akhmadreiza/gober/models"
 	"github.com/akhmadreiza/gober/parsers"
 	"github.com/akhmadreiza/gober/scraper"
+	"github.com/akhmadreiza/gober/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -142,10 +143,11 @@ func getPopularArticle(ginContext *gin.Context) {
 }
 
 func getScraper(website string) (scraper.NewsScraper, error) {
+	httpClient := utils.NewHTTPClient()
 	if website == "detik" {
-		return parsers.DetikScraper{}, nil
+		return parsers.DetikScraper{Client: httpClient}, nil
 	} else if website == "kompas" {
-		return parsers.KompasScraper{}, nil
+		return parsers.KompasScraper{Client: httpClient}, nil
 	}
 	return nil, fmt.Errorf("scrape %v not supported", website)
 }

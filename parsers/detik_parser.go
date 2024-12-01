@@ -3,7 +3,6 @@ package parsers
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -13,21 +12,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DetikScraper struct{}
+type DetikScraper struct {
+	Client HTTPClient
+}
 
 func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
 	log.Println("accessing", detailUrl)
-	resp, err := http.Get(detailUrl)
+	resp, err := detik.Client.Get(detailUrl)
 	if err != nil {
 		return models.Article{}, err
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		return models.Article{}, fmt.Errorf("error: status code %d", resp.StatusCode)
+	if resp.Status != 200 {
+		return models.Article{}, fmt.Errorf("error: status code %d", resp.Status)
 	}
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(resp.Body))
 	if err != nil {
 		return models.Article{}, err
 	}
@@ -75,17 +75,16 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]models.Article, error) {
 	searchUrl := fmt.Sprintf("https://www.detik.com/search/searchall?query=%v&page=1&result_type=latest", keyword)
 	log.Println("accessing", searchUrl)
-	resp, err := http.Get(searchUrl)
+	resp, err := detik.Client.Get(searchUrl)
 	if err != nil {
 		return []models.Article{}, err
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		return []models.Article{}, fmt.Errorf("error: status code %d", resp.StatusCode)
+	if resp.Status != 200 {
+		return []models.Article{}, fmt.Errorf("error: status code %d", resp.Status)
 	}
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(resp.Body))
 	if err != nil {
 		return []models.Article{}, err
 	}
@@ -108,7 +107,7 @@ func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, er
 		"https://www.detik.com/terpopuler/edu",
 	}
 
-	return utils.FetchListArticles(fetchArticlesDetik, popUrls, ginContext), nil
+	return utils.NewScrapeUtils(detik.Client).FetchListArticles(fetchArticlesDetik, popUrls, ginContext), nil
 }
 
 func fetchArticlesDetik(doc *goquery.Document, c *gin.Context) []models.Article {

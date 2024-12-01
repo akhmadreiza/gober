@@ -2,7 +2,6 @@ package parsers
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -13,6 +12,7 @@ import (
 )
 
 type KompasScraper struct {
+	Client HTTPClient
 }
 
 func (k KompasScraper) Search(keyword string, g *gin.Context) ([]models.Article, error) {
@@ -25,21 +25,20 @@ func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 		"https://indeks.kompas.com/headline",
 	}
 
-	return utils.FetchListArticles(fetchArticlesKompas, popUrls, c), nil
+	return utils.GetScrapeUtils().FetchListArticles(fetchArticlesKompas, popUrls, c), nil
 }
 
 func (k KompasScraper) Detail(url string, c *gin.Context) (models.Article, error) {
-	resp, err := http.Get(url)
+	resp, err := k.Client.Get(url)
 	if err != nil {
 		return models.Article{}, err
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		return models.Article{}, fmt.Errorf("error: status code %d", resp.StatusCode)
+	if resp.Status != 200 {
+		return models.Article{}, fmt.Errorf("error: status code %d", resp.Status)
 	}
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(resp.Body))
 	if err != nil {
 		return models.Article{}, err
 	}
