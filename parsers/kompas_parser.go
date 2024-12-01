@@ -13,6 +13,7 @@ import (
 
 type KompasScraper struct {
 	Client HTTPClient
+	Utils  utils.ScrapeUtils
 }
 
 func (k KompasScraper) Search(keyword string, g *gin.Context) ([]models.Article, error) {
@@ -25,7 +26,7 @@ func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 		"https://indeks.kompas.com/headline",
 	}
 
-	return utils.GetScrapeUtils().FetchListArticles(fetchArticlesKompas, popUrls, c), nil
+	return k.Utils.FetchListArticles(fetchArticlesKompas, popUrls, c), nil
 }
 
 func (k KompasScraper) Detail(url string, c *gin.Context) (models.Article, error) {

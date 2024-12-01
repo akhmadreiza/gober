@@ -144,10 +144,11 @@ func getPopularArticle(ginContext *gin.Context) {
 
 func getScraper(website string) (scraper.NewsScraper, error) {
 	httpClient := utils.NewHTTPClient()
+	scrapeUtils := utils.NewScrapeUtils(*httpClient)
 	if website == "detik" {
-		return parsers.DetikScraper{Client: httpClient}, nil
+		return parsers.DetikScraper{Client: httpClient, Utils: scrapeUtils}, nil
 	} else if website == "kompas" {
-		return parsers.KompasScraper{Client: httpClient}, nil
+		return parsers.KompasScraper{Client: httpClient, Utils: scrapeUtils}, nil
 	}
 	return nil, fmt.Errorf("scrape %v not supported", website)
 }

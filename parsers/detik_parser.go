@@ -14,6 +14,7 @@ import (
 
 type DetikScraper struct {
 	Client HTTPClient
+	Utils  utils.ScrapeUtils
 }
 
 func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
@@ -107,7 +108,7 @@ func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, er
 		"https://www.detik.com/terpopuler/edu",
 	}
 
-	return utils.NewScrapeUtils(detik.Client).FetchListArticles(fetchArticlesDetik, popUrls, ginContext), nil
+	return detik.Utils.FetchListArticles(fetchArticlesDetik, popUrls, ginContext), nil
 }
 
 func fetchArticlesDetik(doc *goquery.Document, c *gin.Context) []models.Article {
