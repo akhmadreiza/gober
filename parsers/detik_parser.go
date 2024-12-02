@@ -107,8 +107,8 @@ func fetchArticlesDetik(doc *goquery.Document, c *gin.Context) []models.Article 
 		if c.Request.TLS != nil {
 			scheme = "https"
 		}
-		article.URL = scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(resultUrl)
-		article.SourceUrl = resultUrl
+		article.URL = scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(resultUrl+"?single=1")
+		article.SourceUrl = resultUrl + "?single=1"
 		article.Title = articleTitle
 		if imgExists {
 			article.ImgUrl = img

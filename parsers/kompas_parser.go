@@ -72,7 +72,7 @@ func fetchArticlesKompas(doc *goquery.Document, c *gin.Context) []models.Article
 		if attrExists {
 			resultUrl = articleUrl
 		}
-		article.SourceUrl = resultUrl
+		article.SourceUrl = resultUrl + "?page=all"
 
 		scheme := "http"
 		if c.Request.TLS != nil {
@@ -80,7 +80,7 @@ func fetchArticlesKompas(doc *goquery.Document, c *gin.Context) []models.Article
 		}
 		article.URL = scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(resultUrl)
 
-		parsedUrl, err := url.Parse(resultUrl)
+		parsedUrl, err := url.Parse(resultUrl + "?page=all")
 		if err == nil {
 			article.ShortDesc = parsedUrl.Host
 
