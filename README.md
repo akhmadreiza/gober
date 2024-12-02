@@ -7,7 +7,7 @@
 
 ## **Features**  
 - Scrape popular articles from multiple websites (e.g., detik.com, kompas.com).  
-- Search articles by keyword.  
+- Search articles by keyword. (WIP)  
 - Fetch article details with enriched content links.  
 - Responsive frontend design for desktop and mobile.  
 
