@@ -18,12 +18,13 @@
 | ----- | ------ | ----------- | ------- |
 | detik.com | :white_check_mark: | `?source=detik` | :indonesia: |
 | kompas.com | :white_check_mark: | `?source=kompas` | :indonesia: |
+| tribunnews.com | :soon: | `?source=tribun` | :indonesia: |
+| cnnindonesia.com | :soon: | `?source=ccnid` | :indonesia: |
 
-:white_check_mark:: Up
-
-:x:: Need Fix
-
-:soon:: Coming Soon
+#### Legend:
+- :white_check_mark:: Up
+- :x:: Need Fix
+- :soon:: Coming Soon
 
 ---
 
@@ -81,6 +82,8 @@ cd gober
    - **Get popular articles**: `/articles/popular?source=detik`  
    - **Search articles**: `/articles?source=detik&q=keyword`  
    - **Get article details**: `/article?detailUrl=encoded_url`
+   
+   See [Available Sites](#available-sites) for `source`.
 
 ---
 
