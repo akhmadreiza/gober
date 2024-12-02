@@ -17,7 +17,7 @@ type KompasScraper struct {
 }
 
 func (k KompasScraper) Search(keyword string, g *gin.Context) ([]models.Article, error) {
-	return nil, nil
+	return []models.Article{}, fmt.Errorf("KompasScraper Search is not supported")
 }
 
 func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {

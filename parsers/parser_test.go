@@ -109,6 +109,27 @@ func TestSearchDetik(t *testing.T) {
 	assert.Equal(t, "https://akcdn.detik.net.id/community/media/visual/2024/12/01/wisatawan-pakai-pelat-palsu-polri-di-puncak_43.jpeg?w=220&q=90", result[0].ImgUrl)
 }
 
+func TestSearchKompas(t *testing.T) {
+	//prepare data
+	mockHTML := `<html></html>`
+
+	//mock
+	mockClient := utils.HttpClientMock{
+		Response: models.ScraperResponse{
+			Body:   mockHTML,
+			Status: 200,
+		},
+	}
+
+	//do test
+	util := utils.NewScrapeUtils(mockClient)
+	scraper := parsers.KompasScraper{Client: mockClient, Utils: util}
+	_, err := scraper.Search("anak abah", ginContext)
+
+	//assertions
+	assert.EqualError(t, err, "KompasScraper Search is not supported")
+}
+
 func TestDetailKompas(t *testing.T) {
 
 	//prepare data
