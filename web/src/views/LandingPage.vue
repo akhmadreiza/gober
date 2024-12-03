@@ -1,31 +1,71 @@
 <template>
   <div class="landing-page">
-    <h1 class="page-title">Popular Articles</h1>
-    <div class="website-section" v-for="(website, index) in websites" :key="website.name">
-      <h2 class="website-title">{{ website.displayName }}</h2>
+    <header class="header">
+      <div class="header-container">
+        <h1 class="header-title">GOBER - Go Berita</h1>
+        <button class="menu-toggle" @click="toggleMenu" aria-label="Toggle Menu">
+          ☰
+        </button>
+      </div>
+      <nav class="menu" :class="{ open: isMenuOpen }">
+        <button
+          v-for="website in websites"
+          :key="website.name"
+          :class="['menu-item', { active: activeSource === website.name }]"
+          @click="setActiveSource(website.name)"
+        >
+          {{ website.displayName }}
+        </button>
+      </nav>
+    </header>
+
+
+    <div v-if="isLoading" class="loading-message">Loading articles...</div>
+
+    <div v-else>
+      <h2 class="website-title">{{ currentWebsite.displayName }}</h2>
       <div class="articles-container">
         <div
           class="article-card"
-          v-for="(article) in website.articles.slice(0, website.visibleCount)"
-          :key="article.source_url"
+          v-for="(article, index) in currentWebsite.articles.slice(0, currentWebsite.visibleCount)"
+          :key="article.source_url || index"
         >
           <div class="article-image-container">
-            <img v-if="article.img_url" :src="article.img_url" alt="Article Image" class="article-image" />
+            <img
+              v-if="article.img_url"
+              :src="article.img_url"
+              alt="Article Image"
+              class="article-image"
+            />
           </div>
           <h2 class="article-title">{{ article.title }}</h2>
           <p class="article-date">{{ article.timestamp || '' }}</p>
           <p class="article-description">{{ article.description || 'No description available.' }}</p>
           <div class="article-links">
-            <a :href="'/detail' + '?source=' + website.name + '&detailUrl=' + encodeURIComponent(article.source_url)" class="read-link">Read</a>
-            <a :href="article.source_url" target="_blank" class="read-more-link">Read from Source</a>
+            <a
+              :href="'/detail' + '?source=' + activeSource + '&detailUrl=' + encodeURIComponent(article.source_url)"
+              class="read-link"
+            >
+              Read
+            </a>
+            <a
+              :href="article.source_url"
+              target="_blank"
+              class="read-more-link"
+            >
+              Read from Source
+            </a>
           </div>
         </div>
       </div>
-      <button v-if="website.visibleCount < website.articles.length" @click="loadMore(index)" class="load-more-button">
-        See More from {{ website.displayName }}
+      <button
+        v-if="currentWebsite.visibleCount < currentWebsite.articles.length"
+        @click="loadMore"
+        class="load-more-button"
+      >
+        See More from {{ currentWebsite.displayName }}
       </button>
     </div>
-    <p v-if="isLoading" class="loading-message">Loading articles...</p>
   </div>
 </template>
 
@@ -40,20 +80,32 @@ export default {
         { name: "detik", displayName: "Detik.com", articles: [], visibleCount: 6 },
         { name: "kompas", displayName: "Kompas.com", articles: [], visibleCount: 6 },
       ],
+      activeSource: "detik", // Default active source
       isLoading: true,
+      isMenuOpen: false,
     };
+  },
+  computed: {
+    currentWebsite() {
+      return this.websites.find((site) => site.name === this.activeSource) || {};
+    },
   },
   methods: {
     async fetchArticles() {
       try {
         const requests = this.websites.map((site) =>
-          axios.get(`/articles/popular?source=${site.name}`).then((response) => {
-            if (response.data.status === "Success" && Array.isArray(response.data.articles)) {
-              site.articles = response.data.articles;
-            } else {
-              console.error(`Error fetching articles for ${site.name}`);
-            }
-          })
+          axios
+            .get(`/articles/popular?source=${site.name}`)
+            .then((response) => {
+              if (
+                response.data.status === "Success" &&
+                Array.isArray(response.data.articles)
+              ) {
+                site.articles = response.data.articles;
+              } else {
+                console.error(`Error fetching articles for ${site.name}`);
+              }
+            })
         );
         await Promise.all(requests);
       } catch (error) {
@@ -62,12 +114,28 @@ export default {
         this.isLoading = false;
       }
     },
-    loadMore(index) {
-      this.websites[index].visibleCount = this.websites[index].articles.length;
+    toggleMenu() {
+      this.isMenuOpen = !this.isMenuOpen; // Toggle menu visibility
+    },
+    setActiveSource(source) {
+      this.activeSource = source;
+    },
+    loadMore() {
+      const website = this.currentWebsite;
+      if (website) {
+        website.visibleCount = website.articles.length;
+      }
     },
   },
   async created() {
     await this.fetchArticles();
+  },
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  },
+  setActiveSource(source) {
+    this.activeSource = source;
+    this.isMenuOpen = false; // Close menu on selection
   },
 };
 </script>
@@ -76,7 +144,7 @@ export default {
 /* Global Styles */
 .landing-page {
   font-family: 'Arial', sans-serif;
-  padding: 30px;
+  padding: 5px;
   background-color: #fafafa; /* Light gray background */
   color: #333333; /* Dark gray text */
   text-align: center;
@@ -195,19 +263,6 @@ export default {
   border-radius: 8px;
 }
 
-@media (max-width: 768px) {
-  .page-title {
-    font-size: 2rem;
-  }
-
-  .article-card {
-    padding: 15px;
-  }
-
-  .article-title {
-    font-size: 1.3rem;
-  }
-}
 .website-title {
   font-size: 2rem;
   margin: 20px 0;
@@ -231,4 +286,127 @@ export default {
   background-color: #2980b9; /* Darker blue */
 }
 
+/* Header Styles */
+.header {
+  display: flex;
+  flex-direction: column;
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px 20px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Menu Styles */
+.menu {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.menu.open {
+  max-height: 200px; /* Adjust based on expected number of items */
+}
+
+.menu-item {
+  background: none;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, border 0.3s;
+}
+
+.menu-item:hover {
+  background-color: #34495e;
+}
+
+.menu-item.active {
+  background-color: #3498db;
+  border-color: white;
+}
+
+/* Menu Toggle Button */
+.menu-toggle {
+  display: none; /* Hidden on larger screens */
+  font-size: 1.5rem;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.menu-toggle:focus {
+  outline: none;
+}
+
+.loading-message {
+  font-size: 1.2rem;
+  color: #888;
+  margin: 20px 0;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 1.5rem;
+  }
+
+  .menu-item {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .article-card {
+    padding: 15px;
+  }
+
+  .article-title {
+    font-size: 1.3rem;
+  }
+  
+  .header-container {
+    flex-direction: row;
+  }
+
+  .menu {
+    flex-direction: column;
+    max-height: 0; /* Collapsed by default */
+  }
+
+  .menu-toggle {
+    display: block; /* Show menu toggle on smaller screens */
+  }
+
+  .menu.open {
+    max-height: 300px; /* Adjust for the expanded menu */
+  }
+
+  .menu-item {
+    width: 100%; /* Full width for menu items */
+    text-align: left;
+    padding: 15px;
+  }
+}
 </style>
