@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/akhmadreiza/gober/models"
 	"github.com/akhmadreiza/gober/parsers"
@@ -25,11 +26,23 @@ func main() {
 }
 
 func initRouter() {
+	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
+	router.Static("/static", "./static")
+	router.NoRoute(serveStatic)
 	router.GET("/articles/popular", getPopularArticle)
 	router.GET("/articles", searchArticle)
 	router.GET("/article", articleDetail)
 	router.Run(":8080")
+}
+
+func serveStatic(c *gin.Context) {
+	staticPath := "./static/index.html"
+	if _, err := os.Stat(staticPath); os.IsNotExist(err) {
+		c.String(http.StatusNotFound, "File not found")
+		return
+	}
+	c.File(staticPath)
 }
 
 func articleDetail(ginContext *gin.Context) {

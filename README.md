@@ -55,7 +55,22 @@
 
 ---
 
-## **Setup Instructions**
+## **Setup Instructions using make**
+
+### 1. **Clone the Repository**  
+```bash
+git clone https://github.com/your-username/gober.git
+cd gober
+```
+
+### 2. **Run make file**
+```bash
+make serve
+```
+
+---
+
+## **Setup Instructions (Separate BE and FE)**
 
 ### 1. **Clone the Repository**  
 ```bash

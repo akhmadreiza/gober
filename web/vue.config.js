@@ -1,10 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
-  transpileDependencies: true
-})
-
-// vue.config.js
-module.exports = {
+  transpileDependencies: true,
+  publicPath: '/static/', // Use relative paths for assets
   devServer: {
     proxy: {
       '/articles/popular': {
@@ -17,4 +14,4 @@ module.exports = {
       },
     },
   },
-};
+});
