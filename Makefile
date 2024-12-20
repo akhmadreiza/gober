@@ -1,7 +1,12 @@
 build-fe:
-	cd web && npm install && npm run build && rm -rf ../static && mv dist ../static
+        cd web && npm install && npm run build && rm -rf ../static && mv dist ../static
 
-run:
-	go run main.go
+build-be:
+        go build .
 
-serve: build-fe run
+install:
+        sudo cp -r static /opt/gober/ && sudo cp gober /opt/gober/ && sudo chmod +x /opt/gober/gober
+
+build-gober: build-fe build-be
+
+install-gober: build-gober install
