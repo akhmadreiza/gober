@@ -44,8 +44,25 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 	article.Date = articleDate
 	article.ImgUrl = imageUrl
 
-	html, _ := doc.Find("div.detail__body-text.itp_bodycontent").Html()
+	html, err := doc.Find("div.detail__body-text.itp_bodycontent").Html()
+
+	if err != nil {
+		return models.Article{}, err
+	}
+
 	article.Content = html
+
+	log.Print(html)
+	if html == "" {
+		log.Print("current html is empty. reassign..")
+		html, err := doc.Find("div.detail__body-text").Html()
+
+		if err != nil {
+			return models.Article{}, err
+		}
+
+		article.Content = html
+	}
 
 	return article, nil
 }
