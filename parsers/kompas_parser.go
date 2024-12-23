@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/akhmadreiza/gober/models"
@@ -14,6 +15,7 @@ import (
 type KompasScraper struct {
 	Client utils.HTTPClient
 	Utils  utils.ScrapeUtils
+	Cache  *utils.Cache
 }
 
 func (k KompasScraper) Search(keyword string, g *gin.Context) ([]models.Article, error) {
@@ -21,12 +23,19 @@ func (k KompasScraper) Search(keyword string, g *gin.Context) ([]models.Article,
 }
 
 func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
+	if cachedData, found := k.Cache.Get("kompas:popular"); found {
+		return cachedData.([]models.Article), nil
+	}
+
 	popUrls := []string{
 		"https://indeks.kompas.com/terpopuler",
 		"https://indeks.kompas.com/headline",
 	}
 
-	return k.Utils.FetchListArticles(fetchArticlesKompas, popUrls, c), nil
+	result := k.Utils.FetchListArticles(fetchArticlesKompas, popUrls, c)
+	k.Cache.Set("kompas:popular", result, 5*time.Minute)
+
+	return result, nil
 }
 
 func (k KompasScraper) Detail(url string, c *gin.Context) (models.Article, error) {

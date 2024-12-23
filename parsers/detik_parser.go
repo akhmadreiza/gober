@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/akhmadreiza/gober/models"
@@ -15,6 +16,7 @@ import (
 type DetikScraper struct {
 	Client utils.HTTPClient
 	Utils  utils.ScrapeUtils
+	Cache  *utils.Cache
 }
 
 func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
@@ -88,6 +90,10 @@ func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]mod
 }
 
 func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, error) {
+	if cachedData, found := detik.Cache.Get("detik:popular"); found {
+		return cachedData.([]models.Article), nil
+	}
+
 	popUrls := []string{
 		"https://www.detik.com/terpopuler/news",
 		"https://www.detik.com/terpopuler/finance",
@@ -102,7 +108,10 @@ func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, er
 		"https://www.detik.com/terpopuler/edu",
 	}
 
-	return detik.Utils.FetchListArticles(fetchArticlesDetik, popUrls, ginContext), nil
+	result := detik.Utils.FetchListArticles(fetchArticlesDetik, popUrls, ginContext)
+	detik.Cache.Set("detik:popular", result, 5*time.Minute)
+
+	return result, nil
 }
 
 func fetchArticlesDetik(doc *goquery.Document, c *gin.Context) []models.Article {
