@@ -20,6 +20,10 @@ type DetikScraper struct {
 }
 
 func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
+	if cachedData, found := detik.Cache.Get("detik:" + detailUrl); found {
+		return cachedData.(models.Article), nil
+	}
+
 	resp, err := detik.Client.Get(detailUrl)
 	if err != nil {
 		return models.Article{}, err
@@ -66,6 +70,7 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 		article.Content = html
 	}
 
+	detik.Cache.Set("detik:"+article.URL, article, 5*time.Minute)
 	return article, nil
 }
 

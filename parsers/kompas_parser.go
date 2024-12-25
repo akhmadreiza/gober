@@ -39,6 +39,10 @@ func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 }
 
 func (k KompasScraper) Detail(url string, c *gin.Context) (models.Article, error) {
+	if cachedData, found := k.Cache.Get("kompas:" + url); found {
+		return cachedData.(models.Article), nil
+	}
+
 	resp, err := k.Client.Get(url)
 	if err != nil {
 		return models.Article{}, err
@@ -68,6 +72,7 @@ func (k KompasScraper) Detail(url string, c *gin.Context) (models.Article, error
 	html, _ := doc.Find("div.read__content").Html()
 	article.Content = html
 
+	k.Cache.Set("kompas:"+article.URL, article, 5*time.Minute)
 	return article, nil
 }
 

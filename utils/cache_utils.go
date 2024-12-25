@@ -36,6 +36,7 @@ func (c *Cache) Get(key string) (interface{}, bool) {
 		return nil, false
 	}
 
+	log.Printf("[Cache] success getting cache")
 	return item.Data, true
 }
 
