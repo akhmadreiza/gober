@@ -35,7 +35,8 @@ func TestDetailDetik(t *testing.T) {
 
 	//do test
 	util := utils.NewScrapeUtils(mockClient)
-	scraper := parsers.DetikScraper{Client: mockClient, Utils: util}
+	cache := utils.NewCache()
+	scraper := parsers.DetikScraper{Client: mockClient, Utils: util, Cache: cache}
 	result, err := scraper.Detail("https://detik.com", ginContext)
 
 	//assertions
@@ -97,7 +98,8 @@ func TestSearchDetik(t *testing.T) {
 
 	//do test
 	util := utils.NewScrapeUtils(mockClient)
-	scraper := parsers.DetikScraper{Client: mockClient, Utils: util}
+	cache := utils.NewCache()
+	scraper := parsers.DetikScraper{Client: mockClient, Utils: util, Cache: cache}
 	result, err := scraper.Search("anak abah", ginContext)
 
 	//assertions
@@ -123,7 +125,8 @@ func TestSearchKompas(t *testing.T) {
 
 	//do test
 	util := utils.NewScrapeUtils(mockClient)
-	scraper := parsers.KompasScraper{Client: mockClient, Utils: util}
+	cache := utils.NewCache()
+	scraper := parsers.KompasScraper{Client: mockClient, Utils: util, Cache: cache}
 	_, err := scraper.Search("anak abah", ginContext)
 
 	//assertions
@@ -152,7 +155,8 @@ func TestDetailKompas(t *testing.T) {
 
 	//do test
 	util := utils.NewScrapeUtils(mockClient)
-	scraper := parsers.KompasScraper{Client: mockClient, Utils: util}
+	cache := utils.NewCache()
+	scraper := parsers.KompasScraper{Client: mockClient, Utils: util, Cache: cache}
 	result, err := scraper.Detail("https://kompas.com", ginContext)
 
 	//assertions
