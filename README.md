@@ -1,3 +1,5 @@
+[![Gober build status](https://github.com/akhmadreiza/gober/actions/workflows/go.yml/badge.svg)](https://github.com/akhmadreiza/gober/actions/workflows/go.yml)
+
 # **Gober (Go Berita)**  
 **Gober**, stands for `Go Berita`, is a monorepo project for aggregating news/article from various websites.  
 - **Backend**: Written in Go, provides REST APIs for scraping and fetching news articles.  
