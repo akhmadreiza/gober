@@ -2,6 +2,7 @@ package parsers
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"strings"
 	"time"
@@ -15,7 +16,7 @@ import (
 type KompasScraper struct {
 	Client utils.HTTPClient
 	Utils  utils.ScrapeUtils
-	Cache  *utils.Cache
+	Cache  utils.CacheOps
 }
 
 func (k KompasScraper) Search(keyword string, g *gin.Context) ([]models.Article, error) {
@@ -24,6 +25,7 @@ func (k KompasScraper) Search(keyword string, g *gin.Context) ([]models.Article,
 
 func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 	if cachedData, found := k.Cache.Get("kompas:popular"); found {
+		log.Print("cache kompas:popular found. return data from cache.")
 		return cachedData.([]models.Article), nil
 	}
 
@@ -33,7 +35,11 @@ func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 	}
 
 	result := k.Utils.FetchListArticles(fetchArticlesKompas, popUrls, c)
-	k.Cache.Set("kompas:popular", result, 5*time.Minute)
+
+	log.Printf("Kompas articles: %v", len(result))
+	if len(result) > 0 {
+		k.Cache.Set("kompas:popular", result, 5*time.Minute)
+	}
 
 	return result, nil
 }

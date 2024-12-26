@@ -21,18 +21,18 @@ func NewCache() *Cache {
 }
 
 func (c *Cache) Get(key string) (interface{}, bool) {
-	log.Printf("[Cache] getting cache %s", key)
+	log.Printf("[Cache] getting cache")
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	item, found := c.items[key]
 
 	if !found {
-		log.Printf("[Cache] cache not found %s", key)
+		log.Printf("[Cache] cache key not found")
 		return nil, false
 	}
 
 	if time.Now().After(item.ExpiresAt) {
-		log.Printf("[Cache] cache %s is expired", key)
+		log.Printf("[Cache] cache is expired")
 		return nil, false
 	}
 
@@ -41,12 +41,12 @@ func (c *Cache) Get(key string) (interface{}, bool) {
 }
 
 func (c *Cache) Set(key string, value interface{}, ttl time.Duration) {
-	log.Printf("[Cache] setting cache %s", key)
+	log.Printf("[Cache] setting cache")
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.items[key] = CacheItems{
 		Data:      value,
 		ExpiresAt: time.Now().Add(ttl),
 	}
-	log.Printf("[Cache] success setting cache %s. expired at: %s", key, c.items[key].ExpiresAt)
+	log.Printf("[Cache] success setting cache")
 }

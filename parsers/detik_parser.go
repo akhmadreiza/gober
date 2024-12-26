@@ -16,7 +16,7 @@ import (
 type DetikScraper struct {
 	Client utils.HTTPClient
 	Utils  utils.ScrapeUtils
-	Cache  *utils.Cache
+	Cache  utils.CacheOps
 }
 
 func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
@@ -58,9 +58,7 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 
 	article.Content = html
 
-	log.Print(html)
 	if html == "" {
-		log.Print("current html is empty. reassign..")
 		html, err := doc.Find("div.detail__body-text").Html()
 
 		if err != nil {
@@ -76,7 +74,6 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 
 func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]models.Article, error) {
 	searchUrl := fmt.Sprintf("https://www.detik.com/search/searchall?query=%v&page=1&result_type=latest", keyword)
-	log.Println("accessing", searchUrl)
 	resp, err := detik.Client.Get(searchUrl)
 	if err != nil {
 		return []models.Article{}, err
@@ -96,6 +93,7 @@ func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]mod
 
 func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, error) {
 	if cachedData, found := detik.Cache.Get("detik:popular"); found {
+		log.Print("cache detik:popular found. return data from cache.")
 		return cachedData.([]models.Article), nil
 	}
 
@@ -114,7 +112,11 @@ func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, er
 	}
 
 	result := detik.Utils.FetchListArticles(fetchArticlesDetik, popUrls, ginContext)
-	detik.Cache.Set("detik:popular", result, 5*time.Minute)
+
+	log.Printf("Detik articles: %v", len(result))
+	if len(result) > 0 {
+		detik.Cache.Set("detik:popular", result, 5*time.Minute)
+	}
 
 	return result, nil
 }
