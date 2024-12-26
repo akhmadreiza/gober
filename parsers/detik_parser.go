@@ -16,7 +16,7 @@ import (
 type DetikScraper struct {
 	Client utils.HTTPClient
 	Utils  utils.ScrapeUtils
-	Cache  *utils.Cache
+	Cache  utils.CacheOps
 }
 
 func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
@@ -96,6 +96,7 @@ func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]mod
 
 func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, error) {
 	if cachedData, found := detik.Cache.Get("detik:popular"); found {
+		log.Print("cache detik:popular found. return data from cache.")
 		return cachedData.([]models.Article), nil
 	}
 
@@ -114,7 +115,11 @@ func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, er
 	}
 
 	result := detik.Utils.FetchListArticles(fetchArticlesDetik, popUrls, ginContext)
-	detik.Cache.Set("detik:popular", result, 5*time.Minute)
+
+	log.Printf("Detik articles: %v", len(result))
+	if len(result) > 0 {
+		detik.Cache.Set("detik:popular", result, 5*time.Minute)
+	}
 
 	return result, nil
 }
