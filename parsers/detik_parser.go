@@ -58,9 +58,7 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 
 	article.Content = html
 
-	log.Print(html)
 	if html == "" {
-		log.Print("current html is empty. reassign..")
 		html, err := doc.Find("div.detail__body-text").Html()
 
 		if err != nil {
@@ -76,7 +74,6 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 
 func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]models.Article, error) {
 	searchUrl := fmt.Sprintf("https://www.detik.com/search/searchall?query=%v&page=1&result_type=latest", keyword)
-	log.Println("accessing", searchUrl)
 	resp, err := detik.Client.Get(searchUrl)
 	if err != nil {
 		return []models.Article{}, err
