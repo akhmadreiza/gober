@@ -107,9 +107,13 @@ func fetchArticlesKompas(doc *goquery.Document, c *gin.Context) []models.Article
 			//extract date from kompas url
 			su := strings.Split(parsedUrl.Path, "/")
 			at := su[len(su)-2]
-			ah := at[0:2]
-			am := at[2:4]
-			article.Date = s.Find("div.articlePost-date").Text() + ", " + ah + ":" + am + " WIB"
+			if len(at) >= 4 {
+				ah := at[0:2]
+				am := at[2:4]
+				article.Date = s.Find("div.articlePost-date").Text() + ", " + ah + ":" + am + " WIB"
+			} else {
+				log.Printf("article time from url %s is unparseable", resultUrl)
+			}
 		}
 
 		img, imgExists := s.Find("div.articleItem-img").Find("img").Attr("src")
