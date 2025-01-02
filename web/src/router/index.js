@@ -5,12 +5,12 @@ import ArticleDetail from '../views/ArticleDetail.vue';
 const routes = [
   {
     path: '/',
-    name: 'home',
+    name: 'Gober - Berita Bebas Iklan - Home',
     component: LandingPage,
   },
   {
     path: '/detail',
-    name: 'ArticleDetail',
+    name: 'Gober - Berita Bebas Iklan - Detail',
     component: ArticleDetail,
   },
 ];
@@ -18,6 +18,11 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(), // No need for base
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  document.title = to.name;
+  next();
 });
 
 export default router;

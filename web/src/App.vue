@@ -20,4 +20,10 @@ export default {
   margin: 10px 0;
   object-fit: contain; /* Ensure the image fits within the container */
 }
+
+/* css reset */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
 </style>

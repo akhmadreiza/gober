@@ -23,7 +23,6 @@
     <div v-if="isLoading" class="loading-message">Loading articles...</div>
 
     <div v-else>
-      <h2 class="website-title">{{ currentWebsite.displayName }}</h2>
       <div class="articles-container">
         <div
           class="article-card"
@@ -38,24 +37,24 @@
               class="article-image"
             />
           </div>
-          <h2 class="article-title">{{ article.title }}</h2>
-          <p class="article-date">{{ article.timestamp || '' }}</p>
-          <p class="article-description">{{ article.description || 'No description available.' }}</p>
-          <div class="article-links">
+          <h2 class="article-title">
             <a
               :href="'/detail' + '?source=' + activeSource + '&detailUrl=' + encodeURIComponent(article.source_url)"
               class="read-link"
             >
-              Read
+            {{ article.title }}
             </a>
-            <a
+          </h2>
+          <p class="article-date">{{ article.timestamp || '' }}</p>
+          <p class="article-description">
+            Source: <a
               :href="article.source_url"
               target="_blank"
-              class="read-more-link"
+              class="read-origin-link"
             >
-              Read from Source
+              {{ article.description || 'Original Link' }}
             </a>
-          </div>
+          </p>
         </div>
       </div>
       <button
@@ -63,7 +62,7 @@
         @click="loadMore"
         class="load-more-button"
       >
-        See More from {{ currentWebsite.displayName }}
+        View All
       </button>
     </div>
   </div>
@@ -77,8 +76,8 @@ export default {
   data() {
     return {
       websites: [
-        { name: "detik", displayName: "Detik.com", articles: [], visibleCount: 6 },
-        { name: "kompas", displayName: "Kompas.com", articles: [], visibleCount: 6 },
+        { name: "detik", displayName: "Detik.com", articles: [], visibleCount: 8 },
+        { name: "kompas", displayName: "Kompas.com", articles: [], visibleCount: 8 },
       ],
       activeSource: "detik", // Default active source
       isLoading: true,
@@ -142,9 +141,9 @@ export default {
 
 <style scoped>
 /* Global Styles */
+
 .landing-page {
   font-family: 'Arial', sans-serif;
-  padding: 5px;
   background-color: #fafafa; /* Light gray background */
   color: #333333; /* Dark gray text */
   text-align: center;
@@ -167,13 +166,13 @@ export default {
 
 @media (min-width: 768px) {
   .articles-container {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns for medium screens */
+    grid-template-columns: repeat(3, 1fr); /* 2 columns for medium screens */
   }
 }
 
 @media (min-width: 1024px) {
   .articles-container {
-    grid-template-columns: repeat(3, 1fr); /* 3 columns for large screens */
+    grid-template-columns: repeat(4, 1fr); /* 3 columns for large screens */
   }
 }
 
@@ -186,33 +185,27 @@ export default {
   transition: all 0.3s ease;
   border-left: 5px solid #ecf0f1; /* Light gray border left */
   max-width: 350px; /* Prevent cards from stretching too much */
-  margin: 0 auto; /* Center each card within the grid cell */
-}
-
-.article-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .article-title {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: bold;
   color: #2c3e50; /* Dark blue for titles */
   margin-bottom: 10px;
   text-align: left;
 }
 
-.article-description {
-  font-size: 1rem;
+.article-date {
+  font-size: 0.8rem;
   color: #555;
-  margin-bottom: 15px;
+  margin: 10px 0px 10px 0px;
   text-align: left;
 }
 
-.article-date{
-  font-size: 0.8rem;
+.article-description {
+  font-size: 0.5rem;
   color: #555;
-  margin-bottom: 15px;
+  margin: 10px 0px 10px 0px;
   text-align: left;
 }
 
@@ -222,21 +215,20 @@ export default {
   gap: 10px;
 }
 
+.read-origin-link {
+  color: #3498db;
+}
+
 .read-more-link,
 .read-link {
-  color: #3498db; /* Bright blue for links */
-  text-decoration: none;
-  font-weight: bold;
-  border: 1px solid #3498db;
-  padding: 5px 10px;
-  border-radius: 5px;
+  color: #3498db;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.read-origin-link:hover,
 .read-more-link:hover,
 .read-link:hover {
-  background-color: #3498db; /* Blue background on hover */
-  color: white; /* White text on hover */
+  color: #2c3e50; /* Blue text on hover */
 }
 
 .no-url {
@@ -293,6 +285,7 @@ export default {
   background-color: #2c3e50;
   color: white;
   padding: 20px 20px;
+  margin-bottom: 25px;
 }
 
 .header-container {
@@ -380,10 +373,6 @@ export default {
 
   .article-card {
     padding: 15px;
-  }
-
-  .article-title {
-    font-size: 1.3rem;
   }
   
   .header-container {
