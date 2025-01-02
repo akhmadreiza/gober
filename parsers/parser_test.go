@@ -474,6 +474,67 @@ func TestPopularKompasWithCache(t *testing.T) {
 	assert.Equal(t, 1, len(resdata))
 }
 
+func TestPopularKompasNoArticleTimeFromURL(t *testing.T) {
+	//prepare data
+	mockHTML := `
+	<html>
+		<div class="articleList -list">
+			<div class="articleItem">
+				<a class="article-link" href="https://jeo.kompas.com/mencari-harimau-jawa-antara-ada-dan-tiada">
+					<div class="articleItem-wrap">
+						<div class="articleItem-img">
+							<img src="https://asset.kompas.com/crops/TCuq_DNPXldyvIS6MJVs9R-AF3w=/71x0:885x543/230x153/data/photo/2025/01/01/677527db4db98.jpg" alt="">
+						</div>
+						<div class="articleItem-box">
+							<h2 class="articleTitle">Mencari Harimau Jawa, Antara Ada dan Tiada</h2>
+							<div class="articlePost">
+								<ul>
+									<li>
+										<div class="articlePost-subtitle">JEO</div>
+									</li>
+									<li>
+										<div class="articlePost-date">02/01/2025</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+	</html>`
+
+	//mock
+	mockClient := utils.HttpClientMock{
+		Response: models.ScraperResponse{
+			Body:   mockHTML,
+			Status: 200,
+		},
+	}
+	cacheItems := utils.CacheItemsMock{
+		Data:  nil,
+		Found: false,
+	}
+	cache := utils.CacheMock{
+		Items: cacheItems,
+	}
+
+	//do test
+	util := utils.NewScrapeUtils(mockClient)
+	scraper := parsers.KompasScraper{Client: mockClient, Utils: util, Cache: &cache}
+	res, err := scraper.Popular(ginContext)
+
+	//assertions
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(res)) //2 is sum of popUrls slice in kompas_parser
+
+	//make sure data inserted to cache
+	resdata, ok := cache.Items.Data.([]models.Article)
+	assert.True(t, ok)
+	assert.NotNil(t, resdata)
+	assert.Equal(t, 2, len(resdata))
+}
+
 func createTestGinContext() *gin.Context {
 	// Create a ResponseRecorder (a test HTTP response writer)
 	w := httptest.NewRecorder()
