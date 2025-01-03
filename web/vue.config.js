@@ -5,11 +5,11 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/articles/popular': {
-        target: 'http://localhost:8080', // Go backend
+        target: process.env.VUE_APP_GOBER_API_URL, // Go backend
         changeOrigin: true,
       },
       '/article': {
-        target: 'http://localhost:8080', // Go backend
+        target: process.env.VUE_APP_GOBER_API_URL, // Go backend
         changeOrigin: true,
       },
     },

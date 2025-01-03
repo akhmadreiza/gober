@@ -1,5 +1,5 @@
 build-fe:
-	cd web && npm install && npm run build && rm -rf ../static && mv dist ../static
+	cd web && npm install && npm run build -- --mode=production && rm -rf ../static && mv dist ../static
 
 build-be:
 	go build .
