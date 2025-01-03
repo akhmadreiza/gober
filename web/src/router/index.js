@@ -28,3 +28,4 @@ router.beforeEach((to, from, next) => {
 export default router;
 
 console.log("hello from router/index.js")
+console.log("be url: " + process.env.VUE_APP_GOBER_API_URL)
