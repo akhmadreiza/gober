@@ -3,19 +3,21 @@
     <header class="header">
       <div class="header-container">
         <h1 class="header-title">GOBER - Go Berita</h1>
+        <p class="header-subtitle">Baca berita bebas iklan</p>
         <button class="menu-toggle" @click="toggleMenu" aria-label="Toggle Menu">
           ☰
         </button>
       </div>
       <nav class="menu" :class="{ open: isMenuOpen }">
-        <button
+        <a
           v-for="website in websites"
           :key="website.name"
+          :href="'#' + website.name" 
           :class="['menu-item', { active: activeSource === website.name }]"
-          @click="setActiveSource(website.name)"
+          @click.prevent="setActiveSource(website.name)"
         >
           {{ website.displayName }}
-        </button>
+        </a>
       </nav>
     </header>
 
@@ -76,8 +78,8 @@ export default {
   data() {
     return {
       websites: [
-        { name: "detik", displayName: "Detik.com", articles: [], visibleCount: 8 },
-        { name: "kompas", displayName: "Kompas.com", articles: [], visibleCount: 8 },
+        { name: "detik", displayName: "Detik", articles: [], visibleCount: 8 },
+        { name: "kompas", displayName: "Kompas", articles: [], visibleCount: 8 },
       ],
       activeSource: "detik", // Default active source
       isLoading: true,
@@ -164,6 +166,12 @@ export default {
   margin: 0 auto; /* Center the grid container horizontally */
 }
 
+@media (min-width: 432px) {
+  .articles-container {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for medium screens */
+  }
+}
+
 @media (min-width: 768px) {
   .articles-container {
     grid-template-columns: repeat(3, 1fr); /* 2 columns for medium screens */
@@ -183,8 +191,6 @@ export default {
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  border-left: 5px solid #ecf0f1; /* Light gray border left */
-  max-width: 350px; /* Prevent cards from stretching too much */
 }
 
 .article-title {
@@ -285,13 +291,15 @@ export default {
   background-color: #2c3e50;
   color: white;
   padding: 20px 20px;
+  padding-bottom: 0px;
   margin-bottom: 25px;
 }
 
 .header-container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column; /* Stack items vertically */
 }
 
 .header-title {
@@ -300,14 +308,20 @@ export default {
   margin: 0;
 }
 
+.header-subtitle {
+  font-size: 1rem; /* Adjust font size */
+  color: #bdc3c7; /* Light gray color for subtitle */
+  margin: 5px 0 15px; /* Spacing above and below */
+  text-align: center; /* Center align text */
+}
+
 /* Menu Styles */
 .menu {
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
-  margin-top: 10px;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
+  gap: 15px; /* Space between links */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
 }
 
 .menu.open {
@@ -316,22 +330,29 @@ export default {
 
 .menu-item {
   background: none;
-  color: white;
+  border: none;
+  color: #7dabca; /* Blue link color */
   font-size: 1rem;
-  padding: 10px 15px;
-  border: 1px solid transparent;
-  border-radius: 5px;
+  text-decoration: none; /* Remove underline */
+  padding: 5px 10px;
   cursor: pointer;
-  transition: background-color 0.3s, border 0.3s;
+  transition: color 0.3s ease;
+  text-align: center; /* Center text within the link */
+  border-bottom: 3px solid #2c3e50;
 }
 
-.menu-item:hover {
-  background-color: #34495e;
+/* Hover and active states */
+.menu-item:hover,
+.menu-item:focus {
+  color: #ffffff;
 }
 
+/* Active state for the current source */
 .menu-item.active {
-  background-color: #3498db;
-  border-color: white;
+  color: #ffffff;
+  font-weight: bold;
+  text-decoration: none;
+  border-bottom: 3px solid #3498db;
 }
 
 /* Menu Toggle Button */
@@ -374,28 +395,17 @@ export default {
   .article-card {
     padding: 15px;
   }
-  
-  .header-container {
-    flex-direction: row;
-  }
 
   .menu {
-    flex-direction: column;
-    max-height: 0; /* Collapsed by default */
-  }
-
-  .menu-toggle {
-    display: block; /* Show menu toggle on smaller screens */
-  }
-
-  .menu.open {
-    max-height: 300px; /* Adjust for the expanded menu */
+    display: flex;
+    flex-direction: row; /* Stack links vertically */
+    justify-content: center; /* Center the stacked links */
+    gap: 1px; /* Adjust spacing for vertical layout */
   }
 
   .menu-item {
-    width: 100%; /* Full width for menu items */
-    text-align: left;
-    padding: 15px;
+    width: auto; /* Full width for links */
+    text-align: center; /* Center text even in stacked layout */
   }
 }
 </style>
