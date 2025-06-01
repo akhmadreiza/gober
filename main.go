@@ -42,7 +42,7 @@ func initRouter() {
 	router.GET("/articles/popular", getPopularArticle)
 	router.GET("/articles", searchArticle)
 	router.GET("/article", articleDetail)
-	router.Run(":8080")
+	router.Run(":8089")
 }
 
 func serveStatic(c *gin.Context) {
