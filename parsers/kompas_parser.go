@@ -121,7 +121,7 @@ func fetchArticlesKompas(doc *goquery.Document, c *gin.Context) []models.Article
 
 		img, imgExists := s.Find("div.articleItem-img").Find("img").Attr("src")
 		if imgExists {
-			article.ImgUrl = img
+			article.ImgUrl = utils.EnhanceImageURL(img)
 		}
 
 		article.Title = s.Find("h2.articleTitle").Text()

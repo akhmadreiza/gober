@@ -140,7 +140,7 @@ func fetchArticlesDetik(doc *goquery.Document, c *gin.Context) []models.Article 
 		article.SourceUrl = resultUrl + "?single=1"
 		article.Title = articleTitle
 		if imgExists {
-			article.ImgUrl = img
+			article.ImgUrl = utils.EnhanceImageURL(img)
 		}
 
 		parsedUrl, err := url.Parse(resultUrl)

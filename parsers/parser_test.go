@@ -108,7 +108,7 @@ func TestSearchDetik(t *testing.T) {
 	assert.Equal(t, "Polisi Tindak Wisatawan Pakai Pelat Palsu Polri Demi Lolos Gage di Puncak", result[0].Title)
 	assert.Equal(t, "", result[0].Author)
 	assert.Equal(t, "Minggu, 01 Des 2024 23:30 WIB", result[0].Date)
-	assert.Equal(t, "https://akcdn.detik.net.id/community/media/visual/2024/12/01/wisatawan-pakai-pelat-palsu-polri-di-puncak_43.jpeg?w=220&q=90", result[0].ImgUrl)
+	assert.Equal(t, "https://akcdn.detik.net.id/community/media/visual/2024/12/01/wisatawan-pakai-pelat-palsu-polri-di-puncak_43.jpeg?w=800&q=90", result[0].ImgUrl)
 }
 
 func TestPopularDetikNoResult(t *testing.T) {

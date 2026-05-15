@@ -62,6 +62,7 @@
               :src="visibleArticles[0].img_url"
               :alt="visibleArticles[0].title"
               class="hero-img"
+              @error="fallbackImg"
             />
             <div v-else class="hero-img-empty"></div>
             <span class="hero-badge">{{ activeSource }}</span>
@@ -92,6 +93,7 @@
                 :src="article.img_url"
                 :alt="article.title"
                 class="card-img"
+                @error="fallbackImg"
               />
               <div v-else class="card-img-empty"></div>
             </div>
@@ -167,6 +169,13 @@ export default {
     loadMore() {
       const site = this.currentWebsite;
       if (site) site.visibleCount = site.articles.length;
+    },
+    fallbackImg(event) {
+      const img = event.target;
+      img.onerror = null;
+      img.src = img.src
+        .replace(/w=\d+/, 'w=220')
+        .replace(/\/\d+x\d+\//, '/230x153/');
     },
     async fetchArticles() {
       try {

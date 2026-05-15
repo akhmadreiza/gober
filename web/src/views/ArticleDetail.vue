@@ -50,7 +50,7 @@
         </header>
 
         <figure class="article-hero" v-if="article.img_url">
-          <img :src="article.img_url" :alt="article.title" class="hero-img" />
+          <img :src="article.img_url" :alt="article.title" class="hero-img" @error="fallbackImg" />
         </figure>
 
         <div class="article-body" v-html="article.content"></div>
@@ -93,6 +93,13 @@ export default {
     window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
+    fallbackImg(event) {
+      const img = event.target;
+      img.onerror = null;
+      img.src = img.src
+        .replace(/w=\d+/, 'w=220')
+        .replace(/\/\d+x\d+\//, '/230x153/');
+    },
     handleScroll() {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;

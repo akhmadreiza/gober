@@ -2,10 +2,25 @@ package utils
 
 import (
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
+
+var detikImgWidth = regexp.MustCompile(`w=\d+`)
+var kompasDimension = regexp.MustCompile(`/\d+x\d+/`)
+
+// EnhanceImageURL rewrites thumbnail CDN URLs to request a larger image.
+func EnhanceImageURL(imgURL string) string {
+	if strings.Contains(imgURL, "akcdn.detik.net.id") {
+		return detikImgWidth.ReplaceAllString(imgURL, "w=800")
+	}
+	if strings.Contains(imgURL, "asset.kompas.com") {
+		return kompasDimension.ReplaceAllLiteralString(imgURL, "/460x306/")
+	}
+	return imgURL
+}
 
 var defaultRemoveSelectors = []string{
 	"script",
