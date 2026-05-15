@@ -141,7 +141,7 @@ export default {
         { name: 'detik',  displayName: 'Detik',  articles: [], visibleCount: 9 },
         { name: 'kompas', displayName: 'Kompas', articles: [], visibleCount: 9 },
       ],
-      activeSource: 'detik',
+      activeSource: this.$route.query.source || 'detik',
       isLoading: true,
     };
   },
@@ -165,6 +165,7 @@ export default {
     },
     setActiveSource(source) {
       this.activeSource = source;
+      this.$router.replace({ query: { source } });
     },
     loadMore() {
       const site = this.currentWebsite;

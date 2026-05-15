@@ -4,7 +4,7 @@
     <div class="progress-bar" :style="{ width: readingProgress + '%' }"></div>
 
     <nav class="reader-nav" :class="{ visible: navVisible }">
-      <a href="/" class="nav-back">
+      <a :href="homeHref" class="nav-back">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Gober
       </a>
@@ -28,7 +28,7 @@
       </div>
 
       <article v-else-if="article" class="article">
-        <a href="/" class="article-back">
+        <a :href="homeHref" class="article-back">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           Kembali ke Beranda
         </a>
@@ -59,13 +59,13 @@
           <div class="footer-rule">
             <span class="ornament-diamond small">◆</span>
           </div>
-          <a href="/" class="footer-back">Baca berita lainnya di Gober →</a>
+          <a :href="homeHref" class="footer-back">Baca berita lainnya di Gober →</a>
         </footer>
       </article>
 
       <div v-else class="error-state">
         <p class="error-msg">Artikel tidak dapat dimuat.</p>
-        <a href="/" class="error-link">← Kembali ke Beranda</a>
+        <a :href="homeHref" class="error-link">← Kembali ke Beranda</a>
       </div>
 
     </main>
@@ -85,6 +85,12 @@ export default {
       readingProgress: 0,
       navVisible: false,
     };
+  },
+  computed: {
+    homeHref() {
+      const source = this.$route.query.source;
+      return source ? `/?source=${source}` : '/';
+    },
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll, { passive: true });
