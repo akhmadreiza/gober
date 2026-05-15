@@ -12,18 +12,6 @@ export default {
 </script>
 
 <style>
-/* Global style for responsive images */
-.article-body img {
-  max-width: 100% !important;
-  height: auto !important;
-  display: block;
-  margin: 10px 0;
-  object-fit: contain; /* Ensure the image fits within the container */
-}
-
-/* css reset */
-body {
-  margin: 0 !important;
-  padding: 0 !important;
-}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; padding: 0; }
 </style>
