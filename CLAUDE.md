@@ -45,10 +45,24 @@ make install-gober     # Build + install to /opt/gober/
 - `utils.HTTPClient` — wraps `http.Get`; `RealHTTPClient` for prod, `HttpClientMock` for tests
 - `utils.CacheOps` — `Get`/`Set`; `Cache` (sync.RWMutex in-memory) for prod, `CacheMock` for tests
 
+### Content cleaning pipeline
+Every `Detail()` implementation must run two steps on the content selection before returning:
+
+```go
+utils.RewriteContentLinks(content)   // rewrites detik/kompas hrefs → /detail?source=...
+article.Content = utils.CleanContent(content, /* site-specific selectors */)
+```
+
+`CleanContent` (`utils/content_cleaner.go`) removes `script`, `style`, `iframe`, `noscript`, and any element whose class contains `"ads"` by default. Extra site-specific selectors (ad container class names, widget divs) are passed as variadic args.
+
+`RewriteContentLinks` rewrites `<a href>` tags pointing to detik.com or kompas.com to `/detail?source=SOURCE&detailUrl=ENCODED_URL`, appending `?single=1` (Detik) or `?page=all` (Kompas), and strips `onclick` tracking attributes.
+
 ### Adding a new news source
 1. Create `parsers/<site>_parser.go` implementing `scraper.NewsScraper`
 2. Register the source string in `getScraper()` in `main.go`
-3. Add test cases to `parsers/parser_test.go` using mock HTTP client and cache
+3. In the `Detail()` method, call `RewriteContentLinks` then `CleanContent` with site-specific ad selectors (inspect real article HTML to find them)
+4. Add the new source domain to `RewriteContentLinks` in `utils/content_cleaner.go`
+5. Add test cases to `parsers/parser_test.go` using mock HTTP client and cache
 
 ### Frontend ↔ Backend integration
 In production, the frontend is built into `static/` and served by Gin (`router.Static("/static", "./static")`). All unmatched routes fall back to `static/index.html` (SPA mode).

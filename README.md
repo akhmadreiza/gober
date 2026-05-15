@@ -10,8 +10,10 @@
 ## **Features**  
 - Scrape popular articles from multiple websites (e.g., detik.com, kompas.com).  
 - Search articles by keyword. (WIP)  
-- Fetch article details with enriched content links.  
-- Responsive frontend design for desktop and mobile.  
+- Fetch article details with **ad-free content** — scripts, iframes, and ad elements are stripped server-side before serving.  
+- "Baca Juga" (related article) links inside articles are rewritten to stay within Gober instead of redirecting to the original site.  
+- Editorial reading experience with clean typography (Playfair Display + Lora).  
+- Responsive design for desktop and mobile.  
 
 ---
 
@@ -121,7 +123,7 @@ cd gober
    ```bash
    npm run serve
    ```
-4. Open your browser and visit `http://localhost:8081/static/` to view the web application.
+4. Open your browser and visit `http://localhost:8081` to view the web application.
 
 ---
 
