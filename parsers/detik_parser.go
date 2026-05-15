@@ -50,23 +50,16 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 	article.Date = articleDate
 	article.ImgUrl = imageUrl
 
-	html, err := doc.Find("div.detail__body-text.itp_bodycontent").Html()
-
-	if err != nil {
-		return models.Article{}, err
+	content := doc.Find("div.detail__body-text.itp_bodycontent")
+	if content.Length() == 0 {
+		content = doc.Find("div.detail__body-text")
 	}
-
-	article.Content = html
-
-	if html == "" {
-		html, err := doc.Find("div.detail__body-text").Html()
-
-		if err != nil {
-			return models.Article{}, err
-		}
-
-		article.Content = html
-	}
+	article.Content = utils.CleanContent(content,
+		".paradetail",
+		".staticdetail_container",
+		`[id^="div-gpt-ad"]`,
+		".para_caption",
+	)
 
 	detik.Cache.Set("detik:"+article.URL, article, 5*time.Minute)
 	return article, nil
