@@ -58,6 +58,38 @@ func TestCleanContentRemovesExtraSelectors(t *testing.T) {
 	assert.Contains(t, result, "Article content.")
 }
 
+func TestRewriteContentLinksDetik(t *testing.T) {
+	html := `<div>
+		<p>Baca juga: <a href="https://news.detik.com/berita/d-123/some-article" onclick="_pt(this)" target="_blank">Some Article</a></p>
+		<p>External: <a href="https://example.com/page">External Link</a></p>
+	</div>`
+
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(html))
+	sel := doc.Find("div").First()
+	utils.RewriteContentLinks(sel)
+
+	result, _ := sel.Html()
+	assert.Contains(t, result, `/detail?source=detik&amp;detailUrl=`)
+	assert.Contains(t, result, `single%3D1`) // "single=1" URL-encoded inside detailUrl
+	assert.NotContains(t, result, `onclick`)
+	assert.NotContains(t, result, `target=`)
+	assert.Contains(t, result, `href="https://example.com/page"`) // external unchanged
+}
+
+func TestRewriteContentLinksKompas(t *testing.T) {
+	html := `<div>
+		<p>Baca juga: <a href="https://nasional.kompas.com/read/2024/01/01/some-article">Some Article</a></p>
+	</div>`
+
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(html))
+	sel := doc.Find("div").First()
+	utils.RewriteContentLinks(sel)
+
+	result, _ := sel.Html()
+	assert.Contains(t, result, `/detail?source=kompas&amp;detailUrl=`)
+	assert.Contains(t, result, `page%3Dall`) // "page=all" URL-encoded inside detailUrl
+}
+
 func TestCleanContentPreservesArticleMarkup(t *testing.T) {
 	html := `<div>
 		<p><strong>Bold text</strong> and <em>italic text</em>.</p>

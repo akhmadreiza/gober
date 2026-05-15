@@ -54,11 +54,14 @@ func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Artic
 	if content.Length() == 0 {
 		content = doc.Find("div.detail__body-text")
 	}
+	utils.RewriteContentLinks(content)
 	article.Content = utils.CleanContent(content,
 		".paradetail",
+		".parallaxindetail",
 		".staticdetail_container",
 		`[id^="div-gpt-ad"]`,
 		".para_caption",
+		".aevp",
 	)
 
 	detik.Cache.Set("detik:"+article.URL, article, 5*time.Minute)

@@ -75,7 +75,9 @@ func (k KompasScraper) Detail(url string, c *gin.Context) (models.Article, error
 	article.Date = articleDate
 	article.ImgUrl = imageUrl
 
-	article.Content = utils.CleanContent(doc.Find("div.read__content"),
+	readContent := doc.Find("div.read__content")
+	utils.RewriteContentLinks(readContent)
+	article.Content = utils.CleanContent(readContent,
 		".kompasidRec",
 	)
 
