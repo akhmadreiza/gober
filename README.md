@@ -57,7 +57,7 @@
 
 ---
 
-## **Setup Instructions using make**
+## **Setup Instructions (Single server — production-like)**
 
 ### 1. **Clone the Repository**  
 ```bash
@@ -65,10 +65,13 @@ git clone https://github.com/your-username/gober.git
 cd gober
 ```
 
-### 2. **Run make file**
+### 2. **Build frontend and run**
 ```bash
-make serve
+make build-fe
+go run main.go
 ```
+
+Open `http://localhost:8080` in your browser. Both the frontend and API are served by the Go server on the same port.
 
 ---
 
@@ -116,9 +119,9 @@ cd gober
    ```
 3. Run the development server:  
    ```bash
-   npm run dev
+   npm run serve
    ```
-4. Open your browser and visit `http://localhost:8001` to view the web application.
+4. Open your browser and visit `http://localhost:8081/static/` to view the web application.
 
 ---
 
