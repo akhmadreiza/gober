@@ -76,4 +76,4 @@ In development, `vue.config.js` proxies `/articles/popular` and `/article` to `V
 | `GET /articles` | `source=`, `q=keyword` | Search (detik only; kompas not supported) |
 | `GET /article` | `source=`, `detailUrl=` | Fetch full article detail; cached 5 min |
 
-The `detailUrl` passed to `/article` is URL-encoded. Article URLs in list responses are already pre-encoded proxied URLs (e.g., `http://host/article?detailUrl=...`).
+The `detailUrl` passed to `/article` is URL-encoded. Article URLs in list responses are already pre-encoded proxied URLs (e.g., `http://host/article?source=detik&detailUrl=...`).

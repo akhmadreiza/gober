@@ -103,7 +103,7 @@ cd gober
    The server will run at `http://localhost:8080`. You can access the following endpoints:  
    - **Get popular articles**: `/articles/popular?source=detik`  
    - **Search articles**: `/articles?source=detik&q=keyword`  
-   - **Get article details**: `/article?detailUrl=encoded_url`
+   - **Get article details**: `/article?source=detik&detailUrl=encoded_url`
    
    See [Available Sites](#available-sites) for `source`.
 
