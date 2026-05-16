@@ -70,7 +70,7 @@ func articleDetail(ginContext *gin.Context) {
 
 	scraper, err := getScraper(website)
 	if err != nil {
-		fmt.Println("Error when getting scraper:", err)
+		log.Printf("Error when getting scraper: %v", err)
 		ginContext.IndentedJSON(http.StatusUnprocessableEntity, gin.H{
 			"desc":   err.Error(),
 			"status": "Failed",
@@ -80,7 +80,11 @@ func articleDetail(ginContext *gin.Context) {
 
 	article, err := scraper.Detail(detailUrl, ginContext)
 	if err != nil {
-		fmt.Println("Error scrap URL:", err)
+		log.Printf("Error scrap URL: %v", err)
+		ginContext.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"desc":   err.Error(),
+			"status": "Failed",
+		})
 		return
 	}
 
@@ -111,7 +115,7 @@ func searchArticle(ginContext *gin.Context) {
 
 	scraper, err := getScraper(website)
 	if err != nil {
-		fmt.Println("Error when getting scraper:", err)
+		log.Printf("Error when getting scraper: %v", err)
 		ginContext.IndentedJSON(http.StatusUnprocessableEntity, gin.H{
 			"desc":   err.Error(),
 			"status": "Failed",
@@ -121,7 +125,11 @@ func searchArticle(ginContext *gin.Context) {
 
 	articles, err := scraper.Search(searchKey, ginContext)
 	if err != nil {
-		fmt.Println("Error scrap URL:", err)
+		log.Printf("Error scrap URL: %v", err)
+		ginContext.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"desc":   err.Error(),
+			"status": "Failed",
+		})
 		return
 	}
 
@@ -140,7 +148,7 @@ func getPopularArticle(ginContext *gin.Context) {
 
 	scraper, err := getScraper(website)
 	if err != nil {
-		fmt.Println("Error when getting scraper:", err)
+		log.Printf("Error when getting scraper: %v", err)
 		ginContext.IndentedJSON(http.StatusUnprocessableEntity, gin.H{
 			"desc":   err.Error(),
 			"status": "Failed",
@@ -150,7 +158,11 @@ func getPopularArticle(ginContext *gin.Context) {
 
 	popArticles, err := scraper.Popular(ginContext)
 	if err != nil {
-		fmt.Println("Error getting popular news:", err)
+		log.Printf("Error getting popular news: %v", err)
+		ginContext.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"desc":   err.Error(),
+			"status": "Failed",
+		})
 		return
 	}
 

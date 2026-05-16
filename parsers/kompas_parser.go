@@ -25,8 +25,10 @@ func (k KompasScraper) Search(keyword string, g *gin.Context) ([]models.Article,
 
 func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 	if cachedData, found := k.Cache.Get("kompas:popular"); found {
-		log.Print("cache kompas:popular found. return data from cache.")
-		return cachedData.([]models.Article), nil
+		if articles, ok := cachedData.([]models.Article); ok {
+			log.Print("cache kompas:popular found. return data from cache.")
+			return articles, nil
+		}
 	}
 
 	popUrls := []string{
@@ -46,7 +48,9 @@ func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 
 func (k KompasScraper) Detail(url string, c *gin.Context) (models.Article, error) {
 	if cachedData, found := k.Cache.Get("kompas:" + url); found {
-		return cachedData.(models.Article), nil
+		if article, ok := cachedData.(models.Article); ok {
+			return article, nil
+		}
 	}
 
 	resp, err := k.Client.Get(url)
@@ -101,7 +105,7 @@ func fetchArticlesKompas(doc *goquery.Document, c *gin.Context) []models.Article
 		if c.Request.TLS != nil {
 			scheme = "https"
 		}
-		article.URL = scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(resultUrl)
+		article.URL = scheme + "://" + c.Request.Host + "/article?source=kompas&detailUrl=" + url.QueryEscape(resultUrl)
 
 		parsedUrl, err := url.Parse(resultUrl + "?page=all")
 		if err == nil {

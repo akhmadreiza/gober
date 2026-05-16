@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/akhmadreiza/gober/models"
 )
@@ -14,7 +15,7 @@ type RealHTTPClient struct {
 
 func NewHTTPClient() *RealHTTPClient {
 	return &RealHTTPClient{
-		Client: &http.Client{},
+		Client: &http.Client{Timeout: 15 * time.Second},
 	}
 }
 

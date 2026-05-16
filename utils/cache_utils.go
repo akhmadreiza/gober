@@ -23,8 +23,8 @@ func NewCache() *Cache {
 func (c *Cache) Get(key string) (interface{}, bool) {
 	log.Printf("[Cache] getting cache")
 	c.mu.RLock()
-	defer c.mu.RUnlock()
 	item, found := c.items[key]
+	c.mu.RUnlock()
 
 	if !found {
 		log.Printf("[Cache] cache key not found")
@@ -33,6 +33,12 @@ func (c *Cache) Get(key string) (interface{}, bool) {
 
 	if time.Now().After(item.ExpiresAt) {
 		log.Printf("[Cache] cache is expired")
+		c.mu.Lock()
+		// Re-check after write lock: another goroutine may have Set a fresh value.
+		if current, ok := c.items[key]; ok && time.Now().After(current.ExpiresAt) {
+			delete(c.items, key)
+		}
+		c.mu.Unlock()
 		return nil, false
 	}
 

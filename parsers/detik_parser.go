@@ -21,7 +21,9 @@ type DetikScraper struct {
 
 func (detik DetikScraper) Detail(detailUrl string, c *gin.Context) (models.Article, error) {
 	if cachedData, found := detik.Cache.Get("detik:" + detailUrl); found {
-		return cachedData.(models.Article), nil
+		if article, ok := cachedData.(models.Article); ok {
+			return article, nil
+		}
 	}
 
 	resp, err := detik.Client.Get(detailUrl)
@@ -89,8 +91,10 @@ func (detik DetikScraper) Search(keyword string, ginContext *gin.Context) ([]mod
 
 func (detik DetikScraper) Popular(ginContext *gin.Context) ([]models.Article, error) {
 	if cachedData, found := detik.Cache.Get("detik:popular"); found {
-		log.Print("cache detik:popular found. return data from cache.")
-		return cachedData.([]models.Article), nil
+		if articles, ok := cachedData.([]models.Article); ok {
+			log.Print("cache detik:popular found. return data from cache.")
+			return articles, nil
+		}
 	}
 
 	popUrls := []string{
@@ -136,7 +140,7 @@ func fetchArticlesDetik(doc *goquery.Document, c *gin.Context) []models.Article 
 		if c.Request.TLS != nil {
 			scheme = "https"
 		}
-		article.URL = scheme + "://" + c.Request.Host + "/article?detailUrl=" + url.QueryEscape(resultUrl+"?single=1")
+		article.URL = scheme + "://" + c.Request.Host + "/article?source=detik&detailUrl=" + url.QueryEscape(resultUrl+"?single=1")
 		article.SourceUrl = resultUrl + "?single=1"
 		article.Title = articleTitle
 		if imgExists {

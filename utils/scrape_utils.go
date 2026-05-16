@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"strings"
 	"sync"
 
@@ -48,17 +49,20 @@ func (s ScrapeUtils) fetchListArticlesRoutine(url string, ch chan []models.Artic
 
 	resp, err := s.Client.Get(url)
 	if err != nil {
+		log.Printf("failed to fetch %s: %v", url, err)
 		ch <- []models.Article{}
 		return
 	}
 
 	if resp.Status != 200 {
+		log.Printf("non-200 response %d fetching %s", resp.Status, url)
 		ch <- []models.Article{}
 		return
 	}
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(resp.Body))
 	if err != nil {
+		log.Printf("failed to parse HTML from %s: %v", url, err)
 		ch <- []models.Article{}
 		return
 	}
