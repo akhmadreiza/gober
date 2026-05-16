@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/akhmadreiza/gober/models"
 	"github.com/akhmadreiza/gober/parsers"
@@ -37,15 +41,50 @@ func main() {
 }
 
 func initRouter() {
-	gin.SetMode(gin.DebugMode)
+	mode := os.Getenv("GIN_MODE")
+	if mode == "" {
+		mode = gin.ReleaseMode
+	}
+	gin.SetMode(mode)
+
 	router := gin.Default()
 	router.Use(utils.RateLimitMiddleware())
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
 	router.Static("/static", "./static")
 	router.NoRoute(serveStatic)
 	router.GET("/articles/popular", getPopularArticle)
 	router.GET("/articles", searchArticle)
 	router.GET("/article", articleDetail)
-	router.Run(":8080")
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	srv := &http.Server{
+		Addr:    ":" + port,
+		Handler: router,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %v", err)
+		}
+	}()
+	log.Printf("server started on :%s", port)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-quit
+	log.Printf("received %v, shutting down gracefully...", sig)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("forced shutdown: %v", err)
+	}
+	log.Println("server stopped")
 }
 
 // isAllowedURL rejects requests that don't target a known news domain,

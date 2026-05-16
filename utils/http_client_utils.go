@@ -19,8 +19,16 @@ func NewHTTPClient() *RealHTTPClient {
 	}
 }
 
-func (h RealHTTPClient) Get(url string) (sr models.ScraperResponse, err error) {
-	resp, err := h.Client.Get(url)
+const userAgent = "Gober/1.0 (+https://github.com/akhmadreiza/gober)"
+
+func (h RealHTTPClient) Get(rawURL string) (sr models.ScraperResponse, err error) {
+	req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+	if err != nil {
+		return models.ScraperResponse{}, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("User-Agent", userAgent)
+
+	resp, err := h.Client.Do(req)
 	if err != nil {
 		return models.ScraperResponse{}, fmt.Errorf("failed to fetch URL: %w", err)
 	}
@@ -34,6 +42,6 @@ func (h RealHTTPClient) Get(url string) (sr models.ScraperResponse, err error) {
 	return models.ScraperResponse{
 		Body:   string(body),
 		Status: resp.StatusCode,
-		WebUrl: url,
+		WebUrl: rawURL,
 	}, nil
 }
