@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/akhmadreiza/gober/models"
 	"github.com/akhmadreiza/gober/parsers"
@@ -37,12 +39,28 @@ func main() {
 func initRouter() {
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
+	router.Use(utils.RateLimitMiddleware())
 	router.Static("/static", "./static")
 	router.NoRoute(serveStatic)
 	router.GET("/articles/popular", getPopularArticle)
 	router.GET("/articles", searchArticle)
 	router.GET("/article", articleDetail)
 	router.Run(":8080")
+}
+
+// isAllowedURL rejects requests that don't target a known news domain,
+// preventing SSRF via the detailUrl parameter.
+func isAllowedURL(rawURL string) bool {
+	parsed, err := url.Parse(rawURL)
+	if err != nil || parsed.Host == "" {
+		return false
+	}
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		return false
+	}
+	host := parsed.Hostname()
+	return host == "detik.com" || strings.HasSuffix(host, ".detik.com") ||
+		host == "kompas.com" || strings.HasSuffix(host, ".kompas.com")
 }
 
 func serveStatic(c *gin.Context) {
@@ -63,6 +81,15 @@ func articleDetail(ginContext *gin.Context) {
 	if detailUrl == "" {
 		ginContext.IndentedJSON(http.StatusBadRequest, gin.H{
 			"desc":   "param detailUrl is not exists or is empty",
+			"status": "Failed",
+		})
+		return
+	}
+
+	if !isAllowedURL(detailUrl) {
+		log.Printf("blocked disallowed detailUrl: %s", detailUrl)
+		ginContext.IndentedJSON(http.StatusBadRequest, gin.H{
+			"desc":   "detailUrl points to a disallowed domain",
 			"status": "Failed",
 		})
 		return

@@ -20,18 +20,18 @@
       <div class="source-nav-inner">
 
         <!-- About dropdown (far left) -->
-        <div class="about-wrap">
-          <button class="source-tab about-trigger">
+        <div class="about-wrap" @click.stop="toggleAbout">
+          <button class="source-tab about-trigger" :aria-expanded="showAbout.toString()">
             About
-            <svg class="about-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <svg class="about-chevron" :class="{ rotated: showAbout }" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div class="about-dropdown">
-            <router-link to="/about/how-it-works" class="dropdown-link">
+          <div class="about-dropdown" :class="{ open: showAbout }">
+            <router-link to="/about/how-it-works" class="dropdown-link" @click="showAbout = false">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
               How It Works
             </router-link>
             <div class="dropdown-separator"></div>
-            <router-link to="/about/content-attribution" class="dropdown-link">
+            <router-link to="/about/content-attribution" class="dropdown-link" @click="showAbout = false">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M14.83 14.83a4 4 0 1 1 0-5.66"/></svg>
               Content Attribution
             </router-link>
@@ -166,6 +166,7 @@ export default {
       ],
       activeSource: this.$route.query.source || 'detik',
       isLoading: true,
+      showAbout: false,
     };
   },
   computed: {
@@ -194,6 +195,12 @@ export default {
       const site = this.currentWebsite;
       if (site) site.visibleCount = site.articles.length;
     },
+    toggleAbout() {
+      this.showAbout = !this.showAbout;
+    },
+    closeAbout() {
+      this.showAbout = false;
+    },
     fallbackImg(event) {
       const img = event.target;
       img.onerror = null;
@@ -218,6 +225,12 @@ export default {
         this.isLoading = false;
       }
     },
+  },
+  mounted() {
+    document.addEventListener('click', this.closeAbout);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.closeAbout);
   },
   async created() {
     await this.fetchArticles();
@@ -690,7 +703,7 @@ export default {
   opacity: 0.6;
 }
 
-.about-wrap:hover .about-chevron {
+.about-chevron.rotated {
   transform: rotate(180deg);
   opacity: 1;
 }
@@ -712,10 +725,24 @@ export default {
   border-radius: 0 0 3px 3px;
 }
 
-.about-wrap:hover .about-dropdown {
+/* touch: controlled by Vue click toggle */
+.about-dropdown.open {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+}
+
+/* pointer devices: CSS hover works in addition to click */
+@media (hover: hover) {
+  .about-wrap:hover .about-chevron {
+    transform: rotate(180deg);
+    opacity: 1;
+  }
+  .about-wrap:hover .about-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-link {
