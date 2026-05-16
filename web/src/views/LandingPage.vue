@@ -18,6 +18,29 @@
     <!-- Source tabs -->
     <nav class="source-nav">
       <div class="source-nav-inner">
+
+        <!-- About dropdown (far left) -->
+        <div class="about-wrap">
+          <button class="source-tab about-trigger">
+            About
+            <svg class="about-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="about-dropdown">
+            <router-link to="/about/how-it-works" class="dropdown-link">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              How It Works
+            </router-link>
+            <div class="dropdown-separator"></div>
+            <router-link to="/about/content-attribution" class="dropdown-link">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M14.83 14.83a4 4 0 1 1 0-5.66"/></svg>
+              Content Attribution
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Divider between About and source tabs -->
+        <div class="nav-sep"></div>
+
         <button
           v-for="site in websites"
           :key="site.name"
@@ -649,6 +672,94 @@ export default {
   font-size: 0.8rem;
   margin: 0;
   letter-spacing: 0.03em;
+}
+
+/* ── About dropdown ─────────────────────────────── */
+.about-wrap {
+  position: relative;
+}
+
+.about-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.about-chevron {
+  transition: transform 0.2s ease;
+  opacity: 0.6;
+}
+
+.about-wrap:hover .about-chevron {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+.about-dropdown {
+  position: absolute;
+  top: calc(100% + 1px);
+  left: 0;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  min-width: 192px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+  z-index: 200;
+  border-radius: 0 0 3px 3px;
+}
+
+.about-wrap:hover .about-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.dropdown-link svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.dropdown-link:hover {
+  color: var(--ink);
+  background: var(--paper-warm);
+}
+
+.dropdown-link:hover svg {
+  opacity: 1;
+}
+
+.dropdown-separator {
+  height: 1px;
+  background: var(--border);
+  margin: 0 16px;
+}
+
+.nav-sep {
+  width: 1px;
+  background: var(--border);
+  margin: 10px 4px;
+  align-self: stretch;
 }
 
 /* ── Mobile ─────────────────────────────────────── */

@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LandingPage from '../views/LandingPage.vue';
 import ArticleDetail from '../views/ArticleDetail.vue';
+import HowItWorks from '../views/HowItWorks.vue';
+import ContentAttribution from '../views/ContentAttribution.vue';
 
 const routes = [
   {
@@ -12,6 +14,16 @@ const routes = [
     path: '/detail',
     name: 'Gober - Berita Bebas Iklan - Detail',
     component: ArticleDetail,
+  },
+  {
+    path: '/about/how-it-works',
+    name: 'Gober - How It Works',
+    component: HowItWorks,
+  },
+  {
+    path: '/about/content-attribution',
+    name: 'Gober - Content Attribution',
+    component: ContentAttribution,
   },
 ];
 
