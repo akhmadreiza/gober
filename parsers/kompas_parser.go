@@ -32,8 +32,8 @@ func (k KompasScraper) Popular(c *gin.Context) ([]models.Article, error) {
 	}
 
 	popUrls := []string{
-		"https://indeks.kompas.com/terpopuler",
 		"https://indeks.kompas.com/headline",
+		"https://indeks.kompas.com/terpopuler",
 	}
 
 	result := k.Utils.FetchListArticles(fetchArticlesKompas, popUrls, c)

@@ -138,8 +138,8 @@ export default {
   data() {
     return {
       websites: [
-        { name: 'detik',  displayName: 'Detik',  articles: [], visibleCount: 9 },
-        { name: 'kompas', displayName: 'Kompas', articles: [], visibleCount: 9 },
+        { name: 'detik',  displayName: 'Detik',  articles: [], visibleCount: 10 },
+        { name: 'kompas', displayName: 'Kompas', articles: [], visibleCount: 10 },
       ],
       activeSource: this.$route.query.source || 'detik',
       isLoading: true,
