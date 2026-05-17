@@ -46,6 +46,8 @@
             <span class="meta-author" v-if="article.author">{{ article.author }}</span>
             <span class="meta-dot" v-if="article.author && article.timestamp"></span>
             <time class="meta-date" v-if="article.timestamp">{{ article.timestamp }}</time>
+            <span class="meta-dot" v-if="(article.author || article.timestamp) && article.url"></span>
+            <a v-if="article.url" :href="article.url" class="meta-source" @click.prevent="openSourceModal(article.url)">Sumber asli ↗</a>
           </div>
         </header>
 
@@ -69,6 +71,27 @@
       </div>
 
     </main>
+
+    <transition name="modal-fade">
+      <div v-if="sourceModal" class="modal-overlay" @click.self="closeSourceModal">
+        <div class="modal">
+          <div class="modal-ornament">◆</div>
+          <h2 class="modal-title">Meninggalkan Gober</h2>
+          <p class="modal-body">
+            Anda akan diarahkan ke situs sumber artikel ini.
+          </p>
+          <p class="modal-note">
+            Konten yang ditampilkan di Gober diambil langsung dari sumber asli dan tidak mengalami penambahan atau perubahan apapun. Segala hak atas konten sepenuhnya milik penerbit asli.
+          </p>
+          <p class="modal-url">{{ sourceModal }}</p>
+          <div class="modal-actions">
+            <button class="modal-btn modal-btn--cancel" @click="closeSourceModal">Batal</button>
+            <button class="modal-btn modal-btn--confirm" @click="confirmNavigation">Buka Artikel Asli ↗</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
   </div>
 </template>
 
@@ -84,6 +107,7 @@ export default {
       isLoaded: false,
       readingProgress: 0,
       navVisible: false,
+      sourceModal: null,
     };
   },
   computed: {
@@ -99,6 +123,16 @@ export default {
     window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
+    openSourceModal(url) {
+      this.sourceModal = url;
+    },
+    closeSourceModal() {
+      this.sourceModal = null;
+    },
+    confirmNavigation() {
+      window.open(this.sourceModal, '_blank', 'noopener,noreferrer');
+      this.sourceModal = null;
+    },
     fallbackImg(event) {
       const img = event.target;
       img.onerror = null;
@@ -332,6 +366,19 @@ export default {
   flex-shrink: 0;
 }
 
+.meta-source {
+  font-family: 'Lora', serif;
+  font-size: 0.83rem;
+  font-style: italic;
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.meta-source:hover {
+  color: var(--ink);
+}
+
 /* ── Hero image ─────────────────────────────────────── */
 .article-hero {
   margin: 0 0 40px;
@@ -495,6 +542,120 @@ export default {
   font-size: 0.9rem;
   color: var(--accent);
   text-decoration: none;
+}
+
+/* ── Source modal ───────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 24px;
+}
+
+.modal {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  max-width: 420px;
+  width: 100%;
+  padding: 36px 32px 28px;
+  text-align: center;
+}
+
+.modal-ornament {
+  font-size: 0.55rem;
+  color: var(--accent);
+  margin-bottom: 16px;
+  letter-spacing: 0.3em;
+}
+
+.modal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 14px;
+}
+
+.modal-body {
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.modal-note {
+  font-family: 'Lora', serif;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  font-style: italic;
+  line-height: 1.65;
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  background: var(--paper-warm);
+  border-left: 2px solid var(--accent);
+  text-align: left;
+}
+
+.modal-url {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  word-break: break-all;
+  margin: 0 0 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.modal-btn {
+  font-family: 'Lora', serif;
+  font-size: 0.88rem;
+  padding: 10px 22px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.modal-btn--cancel {
+  background: var(--paper);
+  color: var(--ink-muted);
+}
+
+.modal-btn--cancel:hover {
+  background: var(--paper-warm);
+  color: var(--ink);
+}
+
+.modal-btn--confirm {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.modal-btn--confirm:hover {
+  background: #92400e;
+  border-color: #92400e;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 
 /* ── Mobile ─────────────────────────────────────────── */
